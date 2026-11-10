@@ -68,6 +68,8 @@ browser pane had been hidden by then, so the frame rate at the final 1.25 cap is
 | PASS | perf: real frame rate ≥ 58 fps with AO, DoF and a vape cloud | 78 fps at 2160×1350 px (pixel ratio 1.5) |
 | PASS | no uncaught errors during QA | 0 |
 
+**Third run, 11 Nov 00:11, after the Claude rename and the high-fidelity can / vape: 73 passed, 0 failed, 1 skipped** (frame rate, tab not in front).
+
 ## Bugs this QA pass found and fixed
 1. Thrown chair stopped at the keyboard instead of reaching the monitor → it now ploughs through desk clutter.
 2. Debris counter was wrong after a restart (stale `used` flags) → reset clears them.

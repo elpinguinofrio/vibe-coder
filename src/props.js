@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { VoxelBatch, rand } from './voxel.js';
 import { ROOM } from './room.js';
+import { canModel } from './hifi.js';
 
 const DY = ROOM.deskY;
 
@@ -151,7 +152,7 @@ export class Props {
   }
 
   add(kind, batch, x, y, z, o) {
-    const group = batch.build(); group.position.set(x, y, z);
+    const group = o.mesh || batch.build(); group.position.set(x, y, z); // o.mesh = smooth model; the voxel batch is then only the debris recipe
     const prop = { kind, group, boxes: batch.boxes, hp: 1, price: 0, label: kind, grab: true, home: true, spin: 0, ...o };
     group.userData.prop = prop;
     prop.body = this.D.addBody({ obj: group, r: o.r, hitR: o.hitR, sleep: o.sleep ?? true, prop });
@@ -167,11 +168,13 @@ export class Props {
     this.add('mug', mug(), 0.74, DY + 0.046, -1.3, { hp: 1, price: 24, label: 'mug ("World\'s Okayest Dev")', r: 0.046, hitR: 0.08 });
     this.add('pizza', pizza(), 1.45, DY + 0.025, 0.02, { hp: 1, price: 18.99, label: 'pizza (two slices left, RIP)', r: 0.025, hitR: 0.22 });
     this.chair = this.add('chair', chair(), 0, 0.45, -0.3, { hp: 4, price: 399, label: 'gaming chair (racing stripes)', r: 0.45, hitR: 0.45 });
-    for (let k = 0; k < 2; k++) this.spawnCan(-0.82 + k * 0.09, DY + 0.056, -1.36 - k * 0.05, true);
+    for (let k = 0; k < 2; k++) this.spawnCan(-0.82 + k * 0.09, DY + 0.063, -1.36 - k * 0.05, true);
   }
 
   spawnCan(x = rand(0.55, 1.0), y = DY + 0.4, z = rand(-1.45, -1.2), sleep = false) {
-    const p = this.add('can', can([0x2bff8a, 0xff4fd8, 0x37e6ff, 0xffe14a][(Math.random() * 4) | 0]), x, y, z, { hp: 2, label: 'empty can', r: 0.056, hitR: 0.07, sleep });
+    const col = [0x2bff8a, 0xff4fd8, 0x37e6ff, 0xffe14a][(Math.random() * 4) | 0];
+    const mesh = canModel(col); mesh.rotation.y = rand(0, 6.28);
+    const p = this.add('can', can(col), x, y, z, { hp: 2, label: 'empty can', r: 0.063, hitR: 0.075, sleep, mesh });
     if (!sleep) { p.body.vel.set(rand(-0.5, 0.5), 1.2, rand(-0.3, 0.3)); p.body.ang.set(rand(-4, 4), rand(-4, 4), rand(-4, 4)); }
     return p;
   }

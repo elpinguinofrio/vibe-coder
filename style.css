@@ -70,3 +70,4 @@ html, body { margin: 0; height: 100%; background: #07060d; overflow: hidden; col
 #danger { position: absolute; inset: 0; opacity: 0; background: radial-gradient(ellipse at center, transparent 55%, rgba(255,20,50,.55)); }
 @media (max-width: 900px) { #strikes { font-size: 0; } #strikes .dots { font-size: 22px; } #shipWrap { width: 56vw; } #hint { bottom: 96px; } }
 #beerfx { position: absolute; inset: 0; opacity: 0; background: radial-gradient(ellipse at 50% 70%, rgba(255,190,60,.05) 20%, rgba(255,170,30,.5) 100%); }
+#title .fine { margin-top: 18px; font-size: 11px; color: #8d91b5; }

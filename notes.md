@@ -1,6 +1,6 @@
 # Vibe Coder Simulator — notes
 
-**Minutes left to the hard deadline (01:00 WITA, 11 Nov 2026): 65** (written 23:54 WITA, 10 Nov 2026)
+**Minutes left to the hard deadline (01:00 WITA, 11 Nov 2026): 47** (written 00:12 WITA, 11 Nov 2026)
 
 ## How to run
 ```bash
@@ -41,6 +41,15 @@ Space lean back (or sit back down) · WASD stand up and walk · arrow keys also 
 Winnable, losable, and it ramps (flag rate doubles). A 200 s scripted run with the full render pipeline, random beers, vapes,
 grabs and throws finished with no console errors. Frame cost measured 4.3 ms with AO + DoF on (1.4 ms without) at 676×885 @1.5x in the app pane.
 
+### Changes on 11 Nov, 00:05–00:13 WITA (user requests)
+- **The banning AI is now Claude by name** (user request; overrides the spec's "no real AI brand names" rule). Name only, no logo;
+  "A parody. Not affiliated with or endorsed by Anthropic." on the title screen and the receipt. PARABLE / Hall Monitor are gone from the game.
+- **High-fidelity hero props:** the beer can is a smooth 56-segment aluminium can with a printed label, shoulders, rim, pull tab and
+  condensation, held by a modelled hand with a hoodie sleeve; desk cans use the same model. The vape is a modelled pen with a glowing tank
+  and pulsing LED, raised to your mouth; the cloud uses 4 wispy textures and 96 puffs. Image-based reflections and a 2048 px lamp shadow map were added.
+- QA after these changes: 73 passed, 0 failed, 1 skipped (frame rate — the pane throttles drawing to ~1 fps when it is not in front,
+  so real fps could not be read; GPU-flushed frame cost measured 1.5 ms at 1026×1106 px on the title screen).
+
 ## Untested / not done
 - **Safari: untested** (I may not open browsers on this machine). Only the Chromium-based in-app pane was used.
 - **Sound was never heard by me.** It is measured instead: every effect renders a non-silent signal and stops, and nothing plays when no effect is triggered. Whether it *sounds good* is for your ears.
@@ -52,6 +61,7 @@ grabs and throws finished with no console errors. Frame cost measured 4.3 ms wit
 - No ./reference/ folder existed, so looks were judged against the brief only.
 
 ## Rulings I made (decisions taken without asking)
+0. "Overall increase the fidelity" was read as: smooth, textured models for what you hold up to your face + reflections, while the room stays voxel (the spec's art style). Making every prop high-poly would drop the voxel look — that is the user's call.
 1. No Vite/npm (Node missing; installing needs the user's explicit OK). Cost if wrong: add package.json + vite later, ~10 min.
 2. Own physics instead of Rapier. Cost if wrong: debris does not stack realistically.
 3. notes.md is the execution ledger; worked on main of a fresh repo in this folder (no worktree). Cost: none for a new repo.
@@ -68,6 +78,7 @@ grabs and throws finished with no console errors. Frame cost measured 4.3 ms wit
 - 23:39 AO + depth of field + adaptive quality; 23:40 landscape 1440×900 check, keyboard events (B/Q/V/Space) verified by synthetic key events; bot run with random chaos reached SHIPPED at 3:05 with no errors
 - 23:41 decoy hint, narrow-window HUD · 23:42 final check: real Start click → bot run → SHIPPED at 3:02 → share card shown, 0 console messages
 - 23:43 user: "all sounds disappeared… no beer animation… do proper QA" → root causes found (my `?mute` test URL in the user's tab; beer animation was a 1 s small box), fixed, QA harness written, 5 more bugs found and fixed (docs/qa-report.md) · 23:54 committed
+- 00:05 (11 Nov) user: can + vape high fidelity, overall fidelity up, and "Claude bans you" → done by 00:12, QA re-run 73/0/1
 - Final review: self-review (no subagents, per spec.md "single agent"); weaker than a fresh reviewer.
 
 ## Next 3 ideas

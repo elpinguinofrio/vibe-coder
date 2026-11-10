@@ -60,7 +60,7 @@ export function makeCard(G) {
   };
   rule();
   // outcome stamp
-  const out = { shipped: ['SHIPPED', '#0e9a55'], banned: ['BANNED', '#e01834'], nohardware: ['NO MONITORS LEFT', '#e07a18'] }[G.outcome] || ['???', ink];
+  const out = { shipped: ['SHIPPED', '#0e9a55'], banned: ['BANNED BY CLAUDE', '#e01834'], nohardware: ['NO MONITORS LEFT', '#e07a18'] }[G.outcome] || ['???', ink];
   x.save(); x.translate(W / 2, y + 44); x.rotate(-0.05);
   x.font = `900 ${out[0].length > 8 ? 52 : 86}px "Arial Black", Impact, sans-serif`; x.fillStyle = out[1]; x.strokeStyle = out[1];
   const tw = x.measureText(out[0]).width; x.lineWidth = 7; x.strokeRect(-tw / 2 - 22, -52, tw + 44, 104);
@@ -77,7 +77,7 @@ export function makeCard(G) {
   };
   row('time survived', fmt(G.time)); row('SHIP progress', Math.floor(G.ship) + '%');
   row('appeals won', s.appeals); row('best combo', 'x' + s.bestCombo);
-  row('agents banned', `${s.bans} / ${G.monitors.length}`);
+  row('agents banned by Claude', `${s.bans} / ${G.monitors.length}`);
   row('beers', s.beers); row('vape clouds', s.vapes);
   row('monitors destroyed', s.monitorsDestroyed); row('penguin squeezes', s.squeezes);
   y += 8; rule('DAMAGE INVOICE (USD)');
@@ -98,7 +98,7 @@ export function makeCard(G) {
   let bx = L + 60; const by = B - 92;
   x.fillStyle = ink; while (bx < R - 60) { const bw = 1 + ((Math.random() * 4) | 0); x.fillRect(bx, by, bw, 40); bx += bw + 1 + ((Math.random() * 4) | 0); }
   x.textAlign = 'center'; x.font = `13px ${F}`;
-  x.fillText('PARABLE HALL MONITOR™ · no refunds · appeals: lol · #VibeCoderSimulator', W / 2, B - 30);
+  x.fillText('CLAUDE SAFETY DEPT. (parody, not affiliated with Anthropic) · appeals: lol · #VibeCoderSimulator', W / 2, B - 30);
   return c;
 }
 

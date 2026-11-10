@@ -194,17 +194,23 @@ export function buildRoom(scene) {
   const cityL = new THREE.PointLight(0xa070ff, 2.2, 6, 1.6); cityL.position.set(0, 2.1, -1.9); scene.add(cityL);
   const lamp = new THREE.SpotLight(0xffb878, 5, 6, 0.62, 0.85, 1.5);
   lamp.position.set(-1.16, deskY + 0.9, -1.78); lamp.target.position.set(-0.45, deskY, -1.25);
-  lamp.castShadow = true; lamp.shadow.mapSize.set(1024, 1024); lamp.shadow.radius = 5; lamp.shadow.bias = -0.0015; lamp.shadow.camera.near = 0.1; lamp.shadow.camera.far = 6;
+  lamp.castShadow = true; lamp.shadow.mapSize.set(2048, 2048); lamp.shadow.radius = 5; lamp.shadow.bias = -0.0015; lamp.shadow.camera.near = 0.1; lamp.shadow.camera.far = 6;
   scene.add(lamp, lamp.target);
   lamp.shadow.autoUpdate = false; screenL.shadow.autoUpdate = false; // main.js refreshes them on alternating frames
 
-  // the Hall Monitor: PARABLE's safety bot, hanging from the ceiling, staring at whoever it flagged
+  // Claude's safety bot, hanging from the ceiling, staring at whoever it flagged (name only, no logo)
   const hb = new VoxelBatch();
   hb.box(0, 0, 0, 0.26, 0.17, 0.3, 0xe9ecf4); hb.box(0, 0, 0.152, 0.2, 0.11, 0.01, 0x0d0e16, { j: 0 });
   hb.box(-0.14, 0.02, 0, 0.03, 0.06, 0.1, 0xffc61a); hb.box(0.14, 0.02, 0, 0.03, 0.06, 0.1, 0xffc61a);
   hb.box(0, 0.1, -0.05, 0.05, 0.05, 0.05, 0x8a8fa8); hb.box(0, -0.1, 0.1, 0.2, 0.03, 0.02, 0xffc61a);
   const bot = hb.build(); bot.position.set(0, 2.06, -1.93); scene.add(bot);
   const eye = new THREE.Mesh(UNIT, new THREE.MeshBasicMaterial({ color: 0x33ff88, toneMapped: false })); eye.scale.set(0.07, 0.07, 0.02); eye.position.set(0, 0, 0.16); bot.add(eye);
+  { // name plate under the bot's face
+    const nc = document.createElement('canvas'); nc.width = 256; nc.height = 40; const nx = nc.getContext('2d');
+    nx.fillStyle = '#ffc61a'; nx.fillRect(0, 0, 256, 40); nx.fillStyle = '#1a1c2c'; nx.font = '900 30px "Arial Black", Impact, sans-serif'; nx.textAlign = 'center'; nx.textBaseline = 'middle'; nx.fillText('CLAUDE', 128, 22);
+    const nt = new THREE.CanvasTexture(nc); nt.colorSpace = THREE.SRGBColorSpace;
+    const plate = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.031), new THREE.MeshBasicMaterial({ map: nt })); plate.position.set(0, -0.1, 0.1105); bot.add(plate);
+  }
   const arm = new VoxelBatch(); arm.box(0, 2.42, -1.98, 0.04, 0.56, 0.04, 0x8a8fa8); arm.box(0, 2.68, -1.98, 0.2, 0.04, 0.2, 0x555a70); scene.add(arm.build());
   const botQ = new THREE.Quaternion(), botM = new THREE.Matrix4(), botT = new THREE.Vector3(), UP = new THREE.Vector3(0, 1, 0);
 

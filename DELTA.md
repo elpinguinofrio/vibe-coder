@@ -31,3 +31,10 @@
 
 ## Self-score after round 3 — looks 8 · first 10 s 8 · destruction 8 · penguin 9 · performance 8 (untested full-screen)
 Lowest now: performance certainty. "+2" = measure full-screen on the real display in Chrome and Safari; cheapest fix done = adaptive quality.
+
+## Round 4 — 00:13 WITA, 11 Nov (user feedback)
+1. Beer can was blocky. → FIXED: smooth aluminium can with printed label, pull tab, condensation, modelled hand.
+2. Vape was blocky / flat. → FIXED: modelled pen with glowing tank + LED; wispier cloud textures, more puffs.
+3. Overall fidelity. → partly: image-based reflections, sharper lamp shadows, fill light on held items. Room and desk props stay voxel by design.
+4. "Not just a ban — Claude bans you." → FIXED: Claude by name everywhere (flag screens, strikes, bot name plate, end screen, receipt) + parody disclaimer.
+5. Still open: fist and thrown props are voxel; real full-screen fps unmeasured.

@@ -188,7 +188,7 @@ export class Monitor {
     c.fillStyle = '#200'; c.fillRect(0, 0, W, 12);
     c.fillStyle = '#ffe14a'; c.fillRect(0, 0, W * clamp(f.t / f.max, 0, 1), 12);
     c.textAlign = 'center';
-    c.fillStyle = '#ffe14a'; c.font = `bold 17px ${FONT}`; c.fillText('⚠ HALL MONITOR FLAG ⚠', W / 2, 18);
+    c.fillStyle = '#ffe14a'; c.font = `bold 17px ${FONT}`; c.fillText('⚠ CLAUDE SAFETY FLAG ⚠', W / 2, 18);
     c.fillStyle = '#fff'; c.font = `14px ${FONT}`;
     wrap(c, '"' + f.reason + '"', W / 2, 42, W - 16, 17, H > 400 ? 5 : 3);
     const big = Math.min(H * 0.3, W * 0.34, 120);
@@ -213,7 +213,7 @@ export class Monitor {
     c.fillStyle = '#08080b'; c.fillRect(0, 0, W, H);
     for (let k = 0; k < 160; k++) { c.fillStyle = `rgba(255,255,255,${Math.random() * 0.07})`; c.fillRect(Math.random() * W, Math.random() * H, 2, 2); }
     c.textAlign = 'center'; c.fillStyle = '#6b6f85'; c.font = `13px ${FONT}`;
-    c.fillText(this.agent.name + ' — account terminated', W / 2, 12);
+    c.fillText(this.agent.name + ' — banned by Claude', W / 2, 12);
     wrap(c, 'reason: ' + this.banReason, W / 2, H - 58, W - 20, 16, 3);
     c.save(); c.translate(W / 2, H / 2); c.rotate(-0.2);
     const fs = Math.min(W / 4.6, H / 2.6);

@@ -1,4 +1,4 @@
-// Whack-a-Ban: the Hall Monitor flags agents, you appeal before the countdown ends.
+// Whack-a-Ban: Claude (the over-cautious AI, by the user's request named for real) flags agents, you appeal before the countdown ends.
 import { pick, lerp } from './voxel.js';
 import { REASONS, DECOYS } from './agents.js';
 
@@ -49,7 +49,7 @@ export class BanSystem {
     G.stats.flags++; G.stats.lastReason = reason; G.stats.flagTimes.push(t);
     if (decoy && !G.stats.decoyHint) { G.stats.decoyHint = true; G.ui.hint('New: DECOY buttons. Read before you click — only APPEAL counts.', 4); }
     G.sfx.alarm();
-    G.ui.announce(`HALL MONITOR flagged ${m.agent.name}: ${reason}`);
+    G.ui.announce(`CLAUDE flagged ${m.agent.name}: ${reason}`);
     return m;
   }
 

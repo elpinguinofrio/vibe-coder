@@ -7,7 +7,7 @@ export class UI {
     root.innerHTML = `
     <div id="hud">
       <div id="focus"></div><div id="calm"></div><div id="danger"></div><div id="beerfx"></div><div id="flash"></div>
-      <div id="strikes">HALL MONITOR STRIKES<span class="dots" id="dots"></span></div>
+      <div id="strikes">CLAUDE STRIKES<span class="dots" id="dots"></span></div>
       <div id="shipWrap"><div id="shipLabel">SHIP 0%</div><div id="shipBar"><div id="shipFill"></div></div></div>
       <div id="clock"><span id="time">0:00</span><small id="agentsLeft"></small></div>
       <div id="announce"></div>
@@ -19,12 +19,13 @@ export class UI {
     </div>
     <div id="title">
       <h1>VIBE CODER<br>SIMULATOR<small>WHACK-A-BAN EDITION</small></h1>
-      <div class="tag">2:07 AM. Eight AI agents. One over-cautious Hall Monitor. One emotional support penguin.</div>
+      <div class="tag">2:07 AM. Eight AI agents. One over-cautious Claude that bans you for whatever reason. One emotional support penguin.</div>
       <button id="startBtn" class="click">▶ START VIBING</button>
       <div class="keys">
         <span><b>CLICK</b>appeal / punch</span><span><b>Q</b>squeeze penguin</span><span><b>E</b>grab / throw</span><span><b>B</b>beer</span>
         <span><b>V</b>vape (hold)</span><span><b>SPACE</b>lean back</span><span><b>WASD</b>stand up &amp; walk</span><span><b>MOUSE</b>look</span>
       </div>
+      <div class="fine">A parody. Not affiliated with or endorsed by Anthropic.</div>
     </div>
     <div id="end" class="click"><div id="cardSlot"></div>
       <div id="endSide"><h2 id="endTitle"></h2><p id="endText"></p>

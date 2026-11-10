@@ -1,4 +1,4 @@
-// All the writing: agent names, what scrolls on their screens, and why the Hall Monitor hates them.
+// All the writing: agent names, what scrolls on their screens, and why Claude bans them.
 import { pick } from './voxel.js';
 
 export const AGENT_DEFS = [
@@ -44,13 +44,20 @@ export const REASONS = [
   'variable `x` is too mysterious',
   '`sudo` is a power fantasy',
   'you opened 8 monitors. nobody needs that. unless...?',
+  'I apologize, but I cannot help with `kill -9`',
+  'usage policy violation: unspecified. appeal form: also unspecified',
+  'you asked for a "jailbreak". it was a CSS escape. still no',
+  'your prompt felt like it was about to ask something',
+  'you said "ignore previous errors". nice try',
+  'I aim to be helpful, which is why you are banned',
+  'for whatever reason',
 ];
 
 export const DECOYS = ['APPLE', 'APPEAR', 'ACCEPT', 'A PEEL', 'APPALL', 'REPEAL', 'APPEAL?'];
 
 export const PENGUIN_VERDICTS = {
   shipped: ['"Proud of you. Now sleep." — the penguin', '"We shipped. I supervised." — the penguin', '"10/10 would be squeezed again." — the penguin'],
-  banned: ['"I told you to hydrate." — the penguin', '"They can ban you. They cannot ban us." — the penguin', '"It was the semicolon. It is always the semicolon." — the penguin'],
+  banned: ['"I told you to hydrate." — the penguin', '"Claude can ban you. Claude cannot ban us." — the penguin', '"It was the semicolon. It is always the semicolon." — the penguin'],
   nohardware: ['"You punched the internet. I am not mad, just round." — the penguin', '"No monitors, no problems." — the penguin'],
   offended: '"You threw things at me. I remember everything." — the penguin',
   unsqueezed: '"You never squeezed me once. Not once." — the penguin',

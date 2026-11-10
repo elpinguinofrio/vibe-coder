@@ -6,6 +6,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { buildRoom } from './room.js';
 import { Monitor, MONITOR_DEFS } from './monitors.js';
 import { AGENT_DEFS, APP_NAMES } from './agents.js';
@@ -32,6 +33,10 @@ scene.background = new THREE.Color(0x07060f);
 scene.fog = new THREE.FogExp2(0x1a0f33, 0.07); // light haze
 const camera = new THREE.PerspectiveCamera(68, innerWidth / innerHeight, 0.05, 30);
 scene.add(camera);
+// image-based reflections (so metal, glass and the plush read as materials) + a faint fill light for things you hold
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.2;
+const fill = new THREE.PointLight(0xc8d4ff, 0.45, 1.2, 2); fill.position.set(0.08, 0.06, 0.05); camera.add(fill);
 
 const rt = new THREE.WebGLRenderTarget(innerWidth, innerHeight, { type: THREE.HalfFloatType, samples: 4 });
 const composer = new EffectComposer(renderer, rt);
@@ -187,13 +192,13 @@ G.end = (outcome) => {
   if (outcome === 'shipped') {
     for (const m of G.monitors) if (m.alive()) { m.state = 'shipped'; m.flag = null; }
     destruction.confetti(); G.sfx.win(); G.ui.toast(`${G.appName} IS LIVE`, 'good');
-  } else { G.sfx.lose(); G.ui.toast(outcome === 'banned' ? 'YOU HAVE BEEN BANNED' : 'NO MONITORS LEFT', 'bad'); G.ui.flash(); }
+  } else { G.sfx.lose(); G.ui.toast(outcome === 'banned' ? 'CLAUDE HAS BANNED YOU' : 'NO MONITORS LEFT', 'bad'); G.ui.flash(); }
   setTimeout(() => {
     if (G.state !== 'ended') return;
     G.player.unlock();
     const card = makeCard(G); G.card = card;
-    const T = { shipped: ['SHIPPED!', `"${G.appName}" is live. The Hall Monitor is furious. Screenshot the receipt.`, '#2bff8a'],
-      banned: ['BANNED.', 'The Hall Monitor banned you personally. Post the receipt as evidence.', '#ff2b4a'],
+    const T = { shipped: ['SHIPPED!', `"${G.appName}" is live. Claude is furious. Screenshot the receipt.`, '#2bff8a'],
+      banned: ['BANNED BY CLAUDE.', 'Claude banned you personally. For whatever reason. Post the receipt as evidence.', '#ff2b4a'],
       nohardware: ['NO HARDWARE.', 'You destroyed every monitor. Technically nobody can ban you now.', '#ffa22e'] }[outcome];
     G.ui.showEnd(card, T[0], T[1], T[2]);
   }, outcome === 'shipped' ? 3800 : 2400);
