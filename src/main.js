@@ -21,7 +21,7 @@ import { pick } from './voxel.js';
 
 const app = document.getElementById('app');
 const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.25)); // 1.25 keeps text crisp and leaves headroom for 60 fps full-screen
 renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.02;
@@ -40,6 +40,8 @@ composer.addPass(new RenderPass(scene, camera));
 // out of their depth/normal pre-passes, otherwise they show up as solid quads.
 const ghost = (o) => o.isSprite || (o.material && o.material.transparent);
 const gtao = new GTAOPass(scene, camera, innerWidth, innerHeight, undefined, { radius: 0.3, distanceExponent: 1.4, thickness: 1.3, scale: 1.25, samples: 8 });
+const gtaoSize = gtao.setSize.bind(gtao);
+gtao.setSize = (w, h) => gtaoSize(Math.ceil(w / 2), Math.ceil(h / 2)); // AO at half resolution: it is low-frequency, and this halves its cost
 const ov = gtao.overrideVisibility.bind(gtao);
 gtao.overrideVisibility = () => { ov(); scene.traverse((o) => { if (ghost(o)) o.visible = false; }); };
 composer.addPass(gtao);
@@ -73,7 +75,7 @@ const ban = new BanSystem(G);
 const destruction = new Destruction(G, room.colliders);
 G.props = new Props(G, destruction);
 const vices = new Vices(G, room);
-G.ban = ban; G.destruction = destruction; G.vices = vices;
+G.ban = ban; G.destruction = destruction; G.vices = vices; G.renderer = renderer;
 G.fx = { gtao, bokeh, bloom, composer };
 
 // ---------- game actions ----------
@@ -271,7 +273,7 @@ let slow = 0;
 function frame(now) {
   requestAnimationFrame(frame);
   const raw = (now - last) / 1000, dt = Math.min(0.05, raw); last = now;
-  if (raw > 0 && raw < 0.1) { // ignore throttled / background frames
+  if (raw > 0 && raw < 0.1 && G.state === 'playing' && document.visibilityState === 'visible') { // only judge real, visible gameplay frames
     G.fps += (1 / raw - G.fps) * 0.05;
     // adaptive quality: hold 60 fps by shedding resolution first, then AO, then depth of field
     slow = G.fps < 50 ? slow + 1 : Math.max(0, slow - 2);
@@ -282,7 +284,7 @@ function frame(now) {
       else bokeh.enabled = false;
     }
   }
-  tick(dt);
+  if (!G.manual) tick(dt); // QA takes over the clock
 }
 // one full frame (logic + visuals). Exposed so tests can advance time without waiting for rAF.
 function tick(dt) {
@@ -322,13 +324,16 @@ function tick(dt) {
     G.ui.cursorMode(G.player.locked);
     const hit = G.player.aim().intersectObjects(flagged.map((m) => m.screen), false);
     G.ui.hot(hit.length > 0);
-    if (Math.random() < dt * 7) G.sfx.clack();
+    if (Math.random() < dt * 3) G.sfx.clack(); // sparse, quiet key clicks
     if (!G.player.seated && G.player.chairOk && G.player.nearSeat() && G.ui.hintT <= 0) G.ui.hint('SPACE to sit back down', 0.5);
     if (!G.player.locked && G.ui.hintT <= 0 && G.time > 8) G.ui.hint('Click the game to capture the mouse (Esc releases it)', 0.5);
   }
+  // shadow maps refresh every other frame (lamp on even frames, monitor glow on odd): invisible, and it halves their cost
+  room.lamp.shadow.needsUpdate = frameN % 2 === 0; room.screenL.shadow.needsUpdate = frameN % 2 === 1;
   bokeh.uniforms.focus.value = 1.5 + G.player.lean * 0.5;
   composer.render();
 }
-G.tick = tick; G.start = start; G.click = click; G.grabThrow = grabThrow; G.squeeze = squeeze;
+G.tick = tick; G.toTitle = toTitle; G.start = start; G.click = click; G.grabThrow = grabThrow; G.squeeze = squeeze;
+if (location.search.includes('qa')) import('./qa.js').then((m) => { G.qa = () => m.runQA(G); });
 G.ui.showTitle(true);
 requestAnimationFrame(frame);

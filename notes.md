@@ -1,13 +1,13 @@
 # Vibe Coder Simulator — notes
 
-**Minutes left to the hard deadline (01:00 WITA, 11 Nov 2026): 77** (written 23:42 WITA, 10 Nov 2026 — finished early, feature freeze not needed)
+**Minutes left to the hard deadline (01:00 WITA, 11 Nov 2026): 65** (written 23:54 WITA, 10 Nov 2026)
 
 ## How to run
 ```bash
 python3 serve.py
 ```
 Then open http://127.0.0.1:8137/ in Chrome or Safari. (`python3 -m http.server` also works; `serve.py` just turns caching off.)
-Add `?mute` to the URL for a silent game. It is a static site: push the folder to GitHub Pages as-is, no build step.
+Add `?mute` to the URL for a silent game. QA: open `?qa`, click START, run `await __game.qa()` in the console (report: docs/qa-report.md). It is a static site: push the folder to GitHub Pages as-is, no build step.
 
 Controls: mouse look · click = appeal / punch / interact · Q squeeze penguin · E grab / throw · B beer · V (hold) vape ·
 Space lean back (or sit back down) · WASD stand up and walk · arrow keys also look around.
@@ -26,7 +26,9 @@ Space lean back (or sit back down) · WASD stand up and walk · arrow keys also 
 - Beer (B or click the fridge): bigger appeal hitbox, camera sway, typos on screens, cans pile up, cans can be crushed.
 - Vape (hold V): drifting RGB-tinted cloud that hides screens and slows timers up to 25 %.
 - Share card PNG: time, SHIP %, appeals, combo, bans, beers, vape clouds, monitors destroyed, invoice in USD, funniest ban reason, penguin's verdict.
-- Sound (Web Audio, all synthesised): rain, key clacks, alarm, appeal ding, ban stamp, punch, glass shatter, can open, penguin squeak, vape, win/lose.
+- Sound (Web Audio, all synthesised, effects only — **no background sound**): key clacks, alarm, appeal ding, ban stamp, punch, glass shatter, can open + glugs, penguin squeak, vape, win/lose.
+- Beer has a full drinking animation: hand raises the can, tips it, the camera tilts back, the empty is tossed onto the desk.
+- **QA harness: 74 checks driven by real DOM events — 74/74 passed at 23:53; re-run at 23:55 after the last changes: 73 passed, 0 failed, 1 skipped (frame rate, pane hidden). See docs/qa-report.md.**
 
 ### Bot playtest (`window.__game.simulate(seconds, skill)`, 10 runs per skill, 23:37 WITA)
 | bot answers | wins | avg win time | avg loss time | flags in first 60 s | flags 120–180 s |
@@ -41,13 +43,12 @@ grabs and throws finished with no console errors. Frame cost measured 4.3 ms wit
 
 ## Untested / not done
 - **Safari: untested** (I may not open browsers on this machine). Only the Chromium-based in-app pane was used.
-- **Sound was never heard by me** — only checked that it runs without errors. The fridge hum and synth drone were removed at 23:34
-  because the user found the drone annoying; only soft rain + event sounds remain.
+- **Sound was never heard by me.** It is measured instead: every effect renders a non-silent signal and stops, and nothing plays when no effect is triggered. Whether it *sounds good* is for your ears.
 - **Real pointer-lock play by hand: untested by me.** Clicks were tested through the cursor fallback and by script.
 - **Save-as-PNG button: not clicked** (downloads need explicit permission); the card canvas itself renders correctly.
 - AO (GTAO) and depth of field (bokeh) were added at 23:39 and checked by screenshot only; adaptive quality sheds them if fps < 50, but that fallback path was **not exercised**.
 - **No Vite, no Rapier:** Node is not installed here, so this is plain ES modules + vendored three.js r170 and a small hand-written physics (see Rulings).
-- **60 fps full-screen is not confirmed.** Measured 10.4 ms per frame (CPU-side timing) at 1440×900 @1.5x with AO, DoF and a vape cloud; a full-screen 16" Retina window is ~1.5× more pixels. Adaptive quality is the safety net.
+- **60 fps full-screen is not confirmed.** Real frame rate measured once: 78 fps at 2160×1350 px (1440×900 window, pixel ratio 1.5) with AO, DoF and a vape cloud. After that I capped the pixel ratio at 1.25, halved AO resolution and alternated shadow updates; the re-measure was skipped because the pane was hidden.
 - No ./reference/ folder existed, so looks were judged against the brief only.
 
 ## Rulings I made (decisions taken without asking)
@@ -57,7 +58,8 @@ grabs and throws finished with no console errors. Frame cost measured 4.3 ms wit
 4. 8 monitors, 5 strikes, streak-of-6 reinstatement, ban costs 3 % — tuned from the bot table above.
 5. Smashing a flagged monitor still counts as a ban ("destroying evidence"). Clicking an unflagged monitor punches it.
 6. Personal touch: red scarf on the penguin, framed UBUD rice-terrace photo on the right wall.
-7. Removed hum + drone on the user's mid-run request; added `?mute` and auto-silence when the tab is hidden.
+7. User, 23:34 and 23:42: removed all background sound (hum, synth drone, then the rain hiss too); effects stay. Key clacks kept but sparse and quiet. `?mute` is only for scripted tests. The 23:42 "all sound gone" report was my fault: I had left the user's tab on `?mute`.
+8. Pixel-ratio cap 1.25 instead of 1.5 for frame-rate headroom. Cost if wrong: slightly softer text; change one number in main.js.
 
 ## Log
 - 23:09 start, read spec · 23:14 design doc + plan · 23:28 first render, no errors · 23:30 playable core committed
@@ -65,6 +67,7 @@ grabs and throws finished with no console errors. Frame cost measured 4.3 ms wit
 - 23:36 juice pass (monitor pop/jitter, drinking can, fist), monitor-glow shadows, finer debris, danger vignette
 - 23:39 AO + depth of field + adaptive quality; 23:40 landscape 1440×900 check, keyboard events (B/Q/V/Space) verified by synthetic key events; bot run with random chaos reached SHIPPED at 3:05 with no errors
 - 23:41 decoy hint, narrow-window HUD · 23:42 final check: real Start click → bot run → SHIPPED at 3:02 → share card shown, 0 console messages
+- 23:43 user: "all sounds disappeared… no beer animation… do proper QA" → root causes found (my `?mute` test URL in the user's tab; beer animation was a 1 s small box), fixed, QA harness written, 5 more bugs found and fixed (docs/qa-report.md) · 23:54 committed
 - Final review: self-review (no subagents, per spec.md "single agent"); weaker than a fresh reviewer.
 
 ## Next 3 ideas

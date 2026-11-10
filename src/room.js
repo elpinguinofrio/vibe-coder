@@ -196,6 +196,7 @@ export function buildRoom(scene) {
   lamp.position.set(-1.16, deskY + 0.9, -1.78); lamp.target.position.set(-0.45, deskY, -1.25);
   lamp.castShadow = true; lamp.shadow.mapSize.set(1024, 1024); lamp.shadow.radius = 5; lamp.shadow.bias = -0.0015; lamp.shadow.camera.near = 0.1; lamp.shadow.camera.far = 6;
   scene.add(lamp, lamp.target);
+  lamp.shadow.autoUpdate = false; screenL.shadow.autoUpdate = false; // main.js refreshes them on alternating frames
 
   // the Hall Monitor: PARABLE's safety bot, hanging from the ceiling, staring at whoever it flagged
   const hb = new VoxelBatch();
@@ -214,7 +215,7 @@ export function buildRoom(scene) {
   ];
 
   return {
-    colliders, rgbA, rgbB,
+    colliders, rgbA, rgbB, lamp, screenL,
     rgbColor(phase, out) { return out.setHSL((phase % 1 + 1) % 1, 1, 0.55); },
     // t = seconds, alert = 0..1 (flag pressure), calm = 0..1
     update(t, alert, calm, target) {

@@ -25,7 +25,7 @@ export class Player {
 
   reset() {
     this.yaw = 0; this.pitch = -0.03; this.seated = true; this.lean = 0; this.trauma = 0;
-    this.pos = SEAT.clone(); this.chairOk = true; this.punchT = 0;
+    this.pos = SEAT.clone(); this.chairOk = true; this.punchT = 0; this.tilt = 0;
   }
 
   lock() { try { const p = this.dom.requestPointerLock && this.dom.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (e) { /* cursor fallback */ } }
@@ -66,7 +66,7 @@ export class Player {
     const s = this.trauma * this.trauma;
     const sway = drunk * 0.018;
     const e = new THREE.Euler(
-      this.pitch + this.lean * 0.1 + s * (Math.random() - 0.5) * 0.09 + Math.sin(t * 0.83) * sway,
+      this.pitch + this.lean * 0.1 + (this.tilt || 0) + s * (Math.random() - 0.5) * 0.09 + Math.sin(t * 0.83) * sway,
       this.yaw + s * (Math.random() - 0.5) * 0.09 + Math.sin(t * 0.57) * sway * 1.4,
       s * (Math.random() - 0.5) * 0.07 + Math.sin(t * 0.71) * sway * 1.6, 'YXZ');
     this.camera.quaternion.setFromEuler(e);

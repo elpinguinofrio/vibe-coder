@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import { VoxelBatch, rand, clamp } from './voxel.js';
 
-const NP = 70;
+const NP = 70, BEER_T = 1.7;
 const WHITE = new THREE.Color(1, 1, 1);
 
 function puffTexture() {
@@ -30,34 +30,49 @@ export class Vices {
     const b = new VoxelBatch();
     b.box(0, 0, 0, 0.022, 0.1, 0.022, 0xff4fd8); b.box(0, 0.06, 0, 0.014, 0.03, 0.014, 0x15161f); b.box(0, -0.04, 0.012, 0.01, 0.01, 0.003, 0x37e6ff, { glow: 3, j: 0 });
     this.pen = b.build(false); this.pen.position.set(0.12, -0.16, -0.32); this.pen.rotation.set(0.5, 0, -0.5); this.pen.visible = false; G.camera.add(this.pen);
-    // the can you are currently drinking
-    const cb = new VoxelBatch(); cb.box(0, 0, 0, 0.054, 0.1, 0.054, 0x2bff8a); cb.box(0, 0.053, 0, 0.046, 0.006, 0.046, 0xc9ced8); cb.box(0, 0.005, 0.0275, 0.03, 0.04, 0.002, 0xffffff, { j: 0 });
+    // the can you are drinking, with the hand that holds it
+    const cb = new VoxelBatch(), self = { glow: 0.7, j: 0 }; // self-lit so the can reads in a dark room
+    cb.box(0, 0, 0, 0.066, 0.12, 0.066, 0x2bff8a, self); cb.box(0, 0.064, 0, 0.058, 0.008, 0.058, 0xdfe4ee, self); cb.box(0, -0.064, 0, 0.058, 0.008, 0.058, 0xdfe4ee, self);
+    cb.box(0, 0.01, 0.0335, 0.052, 0.06, 0.003, 0xffffff, self); cb.box(0, 0.012, 0.0355, 0.034, 0.016, 0.002, 0xff4fd8, self); cb.box(0, -0.012, 0.0355, 0.034, 0.008, 0.002, 0x1a1c2c, self);
+    cb.box(0.012, 0.07, 0.008, 0.018, 0.004, 0.026, 0x8a8fa8, self);
+    for (let k = 0; k < 4; k++) cb.box(-0.034, -0.04 + k * 0.021, 0.006, 0.014, 0.018, 0.06, 0xf0c39a, { glow: 0.6, j: 0.05 }); // fingers on the left side
+    cb.box(0.03, -0.11, -0.01, 0.07, 0.11, 0.07, 0x6a4bd8, { glow: 0.45, j: 0 }); // hoodie sleeve below
     this.can = cb.build(false); this.can.visible = false; G.camera.add(this.can);
     this.np = 0; this.reset();
   }
 
   reset() {
     for (const p of this.puffs) { p.life = 0; p.s.visible = false; }
-    this.G.drunk = 0; this.G.vapeCalm = 0; this.beerCd = 0; this.holdT = 0; this.emitT = 0; this.counted = false; this.pen.visible = false;
+    this.G.drunk = 0; this.G.vapeCalm = 0; this.beerCd = 0; this.drinkK = 0; this.tossed = false; this.holdT = 0; this.emitT = 0; this.counted = false; this.pen.visible = false;
   }
 
   beer() {
     const G = this.G;
     if (G.state !== 'playing' || this.beerCd > 0) return;
-    this.beerCd = 1.4; G.drunk = Math.min(4, G.drunk + 1); G.stats.beers++;
+    this.beerCd = BEER_T; this.tossed = false; G.drunk = Math.min(4, G.drunk + 1); G.stats.beers++;
     G.sfx.canOpen(); G.ui.toast('+CONFIDENCE', 'good');
     G.ui.hint(G.drunk >= 3 ? 'Appeal hitbox: enormous. Typing: questionable.' : 'Beer: bigger appeal hitbox, wobblier everything');
-    G.props.canT.push(1.0);
   }
 
   update(dt, t, held) {
     const G = this.G;
     this.beerCd = Math.max(0, this.beerCd - dt);
-    const bk = this.beerCd > 0.4 ? Math.sin(((1.4 - this.beerCd) / 1.0) * Math.PI) : 0; // raise, tilt, lower
-    this.can.visible = bk > 0.01;
-    this.can.position.set(0.16 - bk * 0.1, -0.3 + bk * 0.16, -0.34); this.can.rotation.set(bk * 1.1, 0, -0.2);
-    G.drunk = Math.max(0, G.drunk - dt / 24);
     const cam = G.camera;
+    // drinking animation: raise the can to your face, tip it back (the camera tips with it), lower it, toss the empty
+    const u = this.beerCd > 0 ? 1 - this.beerCd / BEER_T : 1, ss = (a, b, x) => { const k = clamp((x - a) / (b - a), 0, 1); return k * k * (3 - 2 * k); };
+    const raise = ss(0, 0.2, u), tip = ss(0.2, 0.42, u) * (1 - ss(0.76, 0.9, u)), lower = ss(0.86, 1, u);
+    this.drinkK = this.beerCd > 0 ? tip : 0;
+    this.can.visible = this.beerCd > 0;
+    this.can.position.set(0.24 - raise * 0.21 + lower * 0.12, -0.46 + raise * 0.34 + tip * 0.07 - lower * 0.45, -0.33 + tip * 0.07);
+    this.can.rotation.set(tip * 1.5, -0.35 + raise * 0.2, -0.15 * (1 - tip));
+    G.player.tilt = this.drinkK * 0.2;
+    if (this.beerCd > 0 && u > 0.88 && !this.tossed) { // toss the empty onto the desk
+      this.tossed = true;
+      const dir = new THREE.Vector3(0.25, 0, -1).applyQuaternion(cam.quaternion).normalize();
+      const p = G.props.spawnCan(cam.position.x + dir.x * 0.4, cam.position.y - 0.25, cam.position.z + dir.z * 0.4, false);
+      p.body.vel.copy(dir).multiplyScalar(2.4).add(new THREE.Vector3(0, 1.6, 0));
+    }
+    G.drunk = Math.max(0, G.drunk - dt / 24);
     if (held && G.state === 'playing') {
       this.holdT += dt; this.emitT -= dt; this.pen.visible = true;
       if (!this.counted && this.holdT > 0.3) { this.counted = true; G.stats.vapes++; G.sfx.puff(); G.ui.hint('Vape: timers slow down... if you can still see them'); }

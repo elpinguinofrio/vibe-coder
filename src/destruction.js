@@ -28,7 +28,7 @@ export class Destruction {
   }
 
   reset() {
-    for (let i = 0; i < N; i++) { this.d[i].awake = false; this.mesh.setMatrixAt(i, ZERO); }
+    for (let i = 0; i < N; i++) { this.d[i].awake = false; this.d[i].used = false; this.mesh.setMatrixAt(i, ZERO); }
     for (let i = 0; i < NS; i++) { this.sp[i].life = 0; this.sparkMesh.setMatrixAt(i, ZERO); }
     this.mesh.instanceMatrix.needsUpdate = true; this.sparkMesh.instanceMatrix.needsUpdate = true;
     this.bodies = []; this.next = 0; this.live = 0;
@@ -169,8 +169,12 @@ export class Destruction {
               G.hitMonitor(m, 2, dir, null, b.obj.position.clone()); done = true; break;
             }
           }
-          if (!done) for (const o of this.bodies) {
-            if (o !== b && !o.held && o.obj.position.distanceTo(b.obj.position) < b.hitR + o.hitR) { G.props.hit(o.prop, 2, dir); done = true; break; }
+          if (!done) for (const o of this.bodies.slice()) {
+            if (o !== b && !o.held && o.obj.position.distanceTo(b.obj.position) < b.hitR + o.hitR) {
+              G.props.hit(o.prop, 2, dir);
+              if (b.prop.kind === 'chair') { b.vel.multiplyScalar(0.9); continue; } // a thrown chair ploughs through desk clutter
+              done = true; break;
+            }
           }
           if (done) { b.vel.multiplyScalar(-0.25); b.thrown = false; G.props.hit(b.prop, 1, dir); break; }
         }

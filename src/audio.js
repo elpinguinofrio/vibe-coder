@@ -2,21 +2,35 @@
 export class Sfx {
   constructor() { this.ctx = null; this.muted = false; }
 
+  // ?mute = no audio at all (scripted tests). ?qa = audio runs and is measurable, but the speakers stay silent.
   init() {
-    if (location.search.includes('mute')) return; // ?mute = silent (used by scripted tests)
+    if (location.search.includes('mute')) return;
     if (this.ctx) { if (this.ctx.state === 'suspended') this.ctx.resume(); return; }
     try {
       const AC = window.AudioContext || window.webkitAudioContext;
-      this.ctx = new AC();
-      this.master = this.ctx.createGain(); this.master.gain.value = 0.55; this.master.connect(this.ctx.destination);
-      const len = this.ctx.sampleRate * 2;
-      this.nbuf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
-      const d = this.nbuf.getChannelData(0);
-      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-      this.ambience();
-      // never keep making noise from a hidden tab
-      document.addEventListener('visibilitychange', () => { if (!this.ctx) return; if (document.hidden) this.ctx.suspend(); else this.ctx.resume(); });
+      this.setup(new AC(), location.search.includes('qa') ? 0 : 0.55);
     } catch (e) { this.ctx = null; }
+  }
+
+  // build the effect bus on any context (the live one, or an OfflineAudioContext that QA renders effects into)
+  setup(ctx, volume = 0.55) {
+    this.ctx = ctx;
+    this.bus = ctx.createGain(); // every effect goes through here
+    this.master = ctx.createGain(); this.master.gain.value = volume;
+    this.an = ctx.createAnalyser(); this.an.fftSize = 2048;
+    this.bus.connect(this.master); this.bus.connect(this.an); this.master.connect(ctx.destination);
+    const len = ctx.sampleRate * 2;
+    this.nbuf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d = this.nbuf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  }
+
+  // current output level (RMS) before the master volume — used by QA to prove effects are audible
+  level() {
+    if (!this.ctx) return 0;
+    const b = new Float32Array(2048); this.an.getFloatTimeDomainData(b);
+    let t = 0; for (const v of b) t += v * v;
+    return Math.sqrt(t / b.length);
   }
 
   get ok() { return this.ctx && !this.muted; }
@@ -28,7 +42,7 @@ export class Sfx {
     const f = c.createBiquadFilter(); f.type = type; f.frequency.setValueAtTime(freq, t); f.Q.value = q;
     if (to) f.frequency.exponentialRampToValueAtTime(to, t + dur);
     const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(gain, t + attack); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    s.connect(f).connect(g).connect(this.master); s.start(t, Math.random()); s.stop(t + dur + 0.05);
+    s.connect(f).connect(g).connect(this.bus); s.start(t, Math.random()); s.stop(t + dur + 0.05);
   }
 
   tone(freq, dur, { type = 'sine', gain = 0.2, to = null, delay = 0, attack = 0.004 } = {}) {
@@ -37,19 +51,12 @@ export class Sfx {
     const o = c.createOscillator(); o.type = type; o.frequency.setValueAtTime(freq, t);
     if (to) o.frequency.exponentialRampToValueAtTime(to, t + dur);
     const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(gain, t + attack); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g).connect(this.master); o.start(t); o.stop(t + dur + 0.05);
+    o.connect(g).connect(this.bus); o.start(t); o.stop(t + dur + 0.05);
   }
 
-  ambience() {
-    const c = this.ctx;
-    // soft rain on the window (the fridge hum and synth pad were removed: the user found the drone annoying)
-    const s = c.createBufferSource(); s.buffer = this.nbuf; s.loop = true;
-    const f = c.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1500; f.Q.value = 0.35;
-    const g = c.createGain(); g.gain.value = 0.045;
-    s.connect(f).connect(g).connect(this.master); s.start();
-  }
-
-  clack() { this.noise(0.03, { type: 'highpass', freq: 2200 + Math.random() * 1800, gain: 0.05 }); }
+  // No continuous background sound: the hum, the synth pad and the rain hiss were removed on the user's request.
+  // Everything below is a one-shot effect tied to something that happens in the game.
+  clack() { this.noise(0.025, { type: 'highpass', freq: 2200 + Math.random() * 1800, gain: 0.028 }); }
   alarm() { this.tone(880, 0.12, { type: 'square', gain: 0.09 }); this.tone(660, 0.14, { type: 'square', gain: 0.09, delay: 0.13 }); }
   ding(combo = 0) { const f = 620 * Math.pow(1.122, Math.min(combo, 12)); this.tone(f, 0.16, { type: 'triangle', gain: 0.22 }); this.tone(f * 1.5, 0.22, { type: 'sine', gain: 0.14, delay: 0.05 }); }
   buzz() { this.tone(120, 0.3, { type: 'sawtooth', gain: 0.16, to: 80 }); }
@@ -62,7 +69,7 @@ export class Sfx {
   }
   clink() { this.tone(1400 + Math.random() * 1600, 0.06, { type: 'triangle', gain: 0.04 }); }
   thud() { this.tone(110, 0.1, { gain: 0.22, to: 60 }); }
-  canOpen() { this.tone(2400, 0.03, { type: 'square', gain: 0.1 }); this.noise(0.28, { type: 'highpass', freq: 5200, gain: 0.25, delay: 0.03 }); for (let i = 0; i < 3; i++) this.tone(190 - i * 22, 0.11, { gain: 0.2, delay: 0.42 + i * 0.2, to: 120 }); }
+  canOpen() { this.tone(2400, 0.03, { type: 'square', gain: 0.1 }); this.noise(0.28, { type: 'highpass', freq: 5200, gain: 0.25, delay: 0.03 }); for (let i = 0; i < 4; i++) this.tone(190 - i * 18, 0.11, { gain: 0.22, delay: 0.5 + i * 0.2, to: 120 }); this.noise(0.25, { type: 'bandpass', freq: 900, q: 0.7, gain: 0.12, delay: 1.45 }); }
   crush() { this.noise(0.14, { type: 'bandpass', freq: 2800, q: 2, gain: 0.3 }); }
   squeak() { this.tone(950, 0.11, { gain: 0.24, to: 1750 }); this.tone(1750, 0.2, { gain: 0.2, to: 780, delay: 0.11 }); }
   hmph() { this.tone(300, 0.1, { type: 'triangle', gain: 0.2, to: 220 }); this.tone(240, 0.16, { type: 'triangle', gain: 0.2, to: 170, delay: 0.13 }); }
