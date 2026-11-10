@@ -47,6 +47,7 @@ export class BanSystem {
     m.flag = { reason, t: cd, max: cd, decoy, born: t };
     m.state = 'flagged'; m.dirty = true;
     G.stats.flags++; G.stats.lastReason = reason; G.stats.flagTimes.push(t);
+    if (decoy && !G.stats.decoyHint) { G.stats.decoyHint = true; G.ui.hint('New: DECOY buttons. Read before you click — only APPEAL counts.', 4); }
     G.sfx.alarm();
     G.ui.announce(`HALL MONITOR flagged ${m.agent.name}: ${reason}`);
     return m;

@@ -1,6 +1,6 @@
 # Vibe Coder Simulator — notes
 
-**Minutes left to the hard deadline (01:00 WITA, 11 Nov 2026): 82** (written 23:37 WITA, 10 Nov 2026)
+**Minutes left to the hard deadline (01:00 WITA, 11 Nov 2026): 77** (written 23:42 WITA, 10 Nov 2026 — finished early, feature freeze not needed)
 
 ## How to run
 ```bash
@@ -64,6 +64,8 @@ grabs and throws finished with no console errors. Frame cost measured 4.3 ms wit
 - 23:33 Hall Monitor bot, balance, DELTA rounds 1–2 · 23:34 user: "annoying sound" → drone removed
 - 23:36 juice pass (monitor pop/jitter, drinking can, fist), monitor-glow shadows, finer debris, danger vignette
 - 23:39 AO + depth of field + adaptive quality; 23:40 landscape 1440×900 check, keyboard events (B/Q/V/Space) verified by synthetic key events; bot run with random chaos reached SHIPPED at 3:05 with no errors
+- 23:41 decoy hint, narrow-window HUD · 23:42 final check: real Start click → bot run → SHIPPED at 3:02 → share card shown, 0 console messages
+- Final review: self-review (no subagents, per spec.md "single agent"); weaker than a fresh reviewer.
 
 ## Next 3 ideas
 1. A 10-second auto "trailer" camera on the title screen + one-key GIF/WebM capture of the last 8 seconds (the smash that got you banned).

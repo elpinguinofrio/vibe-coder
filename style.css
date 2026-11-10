@@ -68,3 +68,4 @@ html, body { margin: 0; height: 100%; background: #07060d; overflow: hidden; col
 
 @media (max-aspect-ratio: 1/1) { #end canvas { max-height: 66vh; } #endSide { align-items: center; text-align: center; } }
 #danger { position: absolute; inset: 0; opacity: 0; background: radial-gradient(ellipse at center, transparent 55%, rgba(255,20,50,.55)); }
+@media (max-width: 900px) { #strikes { font-size: 0; } #strikes .dots { font-size: 22px; } #shipWrap { width: 56vw; } #hint { bottom: 96px; } }
