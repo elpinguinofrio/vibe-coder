@@ -2,3 +2,4 @@
 vendor/jsm/*
 !vendor/jsm/postprocessing/
 !vendor/jsm/shaders/
+!vendor/jsm/math/

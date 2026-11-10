@@ -19,3 +19,15 @@
 - looks 7 · fun in first 10 s 8 · destruction feel 7 · penguin cuteness 9 · performance 9 (120 fps in the app pane, 1024×768 @1.5x)
 - Lowest: looks/destruction (7). "+2 points" = real AO + per-voxel monitor debris with glass refraction.
   Cheapest fix done: brighter glass + sparks + hit-stop + shake already in; AO left for next session.
+
+## Round 3 — 23:39 WITA
+1. AO + depth of field (round 2, gap 1). → FIXED: GTAO pass + bokeh pass (focus 1.5 m, tiny aperture so monitor text stays sharp);
+   vape sprites / rain planes are hidden from their depth pre-passes. Frame cost 1.4 → 4.3 ms at 1014×1327 px.
+   Adaptive quality added (pixel ratio → AO → DoF are shed if fps < 50 for ~2 s).
+2. Desk clutter floated (no contact shadows from the screens). → FIXED: the monitor glow light now casts soft shadows.
+3. Debris chunks were coarse. → FIXED (0.045 m voxels, up to 170 chunks per object).
+4. No tension cue besides the screen itself. → FIXED (red danger vignette that pulses with the most urgent timer, monitor jitter).
+5. Still open: vape is billboard sprites; walking is basic; no footstep / chair-roll sounds.
+
+## Self-score after round 3 — looks 8 · first 10 s 8 · destruction 8 · penguin 9 · performance 8 (untested full-screen)
+Lowest now: performance certainty. "+2" = measure full-screen on the real display in Chrome and Safari; cheapest fix done = adaptive quality.

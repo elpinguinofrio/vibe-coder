@@ -37,7 +37,7 @@ Space lean back (or sit back down) · WASD stand up and walk · arrow keys also 
 | 80 % | 0/10 | — | 1:51 | 14 | 6 |
 | 0 % (AFK) | 0/10 | — | 0:41 | 5 | 0 |
 Winnable, losable, and it ramps (flag rate doubles). A 200 s scripted run with the full render pipeline, random beers, vapes,
-grabs and throws finished with no console errors. Frame cost measured 1.4 ms (≈120 fps) at 676×885 @1.5x in the app pane.
+grabs and throws finished with no console errors. Frame cost measured 4.3 ms with AO + DoF on (1.4 ms without) at 676×885 @1.5x in the app pane.
 
 ## Untested / not done
 - **Safari: untested** (I may not open browsers on this machine). Only the Chromium-based in-app pane was used.
@@ -45,9 +45,9 @@ grabs and throws finished with no console errors. Frame cost measured 1.4 ms (�
   because the user found the drone annoying; only soft rain + event sounds remain.
 - **Real pointer-lock play by hand: untested by me.** Clicks were tested through the cursor fallback and by script.
 - **Save-as-PNG button: not clicked** (downloads need explicit permission); the card canvas itself renders correctly.
-- **No real ambient-occlusion pass and no depth-of-field pass.** Stand-ins: soft shadows from the lamp and from the monitor glow, fog haze, low-res city backdrop.
+- AO (GTAO) and depth of field (bokeh) were added at 23:39 and checked by screenshot only; adaptive quality sheds them if fps < 50, but that fallback path was **not exercised**.
 - **No Vite, no Rapier:** Node is not installed here, so this is plain ES modules + vendored three.js r170 and a small hand-written physics (see Rulings).
-- 60 fps on a full-screen Retina window is expected from the measured headroom but was not measured full-screen.
+- **60 fps full-screen is not confirmed.** Measured 10.4 ms per frame (CPU-side timing) at 1440×900 @1.5x with AO, DoF and a vape cloud; a full-screen 16" Retina window is ~1.5× more pixels. Adaptive quality is the safety net.
 - No ./reference/ folder existed, so looks were judged against the brief only.
 
 ## Rulings I made (decisions taken without asking)
@@ -63,8 +63,9 @@ grabs and throws finished with no console errors. Frame cost measured 1.4 ms (�
 - 23:09 start, read spec · 23:14 design doc + plan · 23:28 first render, no errors · 23:30 playable core committed
 - 23:33 Hall Monitor bot, balance, DELTA rounds 1–2 · 23:34 user: "annoying sound" → drone removed
 - 23:36 juice pass (monitor pop/jitter, drinking can, fist), monitor-glow shadows, finer debris, danger vignette
+- 23:39 AO + depth of field + adaptive quality; 23:40 landscape 1440×900 check, keyboard events (B/Q/V/Space) verified by synthetic key events; bot run with random chaos reached SHIPPED at 3:05 with no errors
 
 ## Next 3 ideas
-1. Real GTAO + depth of field (needs the vape sprites kept out of the depth pre-pass), then a 10-second auto "trailer" camera on the title screen.
+1. A 10-second auto "trailer" camera on the title screen + one-key GIF/WebM capture of the last 8 seconds (the smash that got you banned).
 2. Daily seed + leaderboard-less "share code" on the receipt so friends can replay the exact same flags.
 3. Hall Monitor boss phase at 90 % SHIP: it flags the penguin, and you must defend it.

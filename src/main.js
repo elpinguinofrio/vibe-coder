@@ -4,6 +4,8 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
 import { buildRoom } from './room.js';
 import { Monitor, MONITOR_DEFS } from './monitors.js';
 import { AGENT_DEFS, APP_NAMES } from './agents.js';
@@ -34,6 +36,21 @@ scene.add(camera);
 const rt = new THREE.WebGLRenderTarget(innerWidth, innerHeight, { type: THREE.HalfFloatType, samples: 4 });
 const composer = new EffectComposer(renderer, rt);
 composer.addPass(new RenderPass(scene, camera));
+// Ambient occlusion + slight depth of field. Sprites (vape, speech bubble) and transparent planes (rain) must stay
+// out of their depth/normal pre-passes, otherwise they show up as solid quads.
+const ghost = (o) => o.isSprite || (o.material && o.material.transparent);
+const gtao = new GTAOPass(scene, camera, innerWidth, innerHeight, undefined, { radius: 0.3, distanceExponent: 1.4, thickness: 1.3, scale: 1.25, samples: 8 });
+const ov = gtao.overrideVisibility.bind(gtao);
+gtao.overrideVisibility = () => { ov(); scene.traverse((o) => { if (ghost(o)) o.visible = false; }); };
+composer.addPass(gtao);
+const bokeh = new BokehPass(scene, camera, { focus: 1.5, aperture: 0.0007, maxblur: 0.004 });
+const bokehRender = bokeh.render.bind(bokeh);
+bokeh.render = (...args) => {
+  const hidden = [];
+  scene.traverse((o) => { if (o.visible && ghost(o)) { o.visible = false; hidden.push(o); } });
+  try { bokehRender(...args); } finally { for (const o of hidden) o.visible = true; }
+};
+composer.addPass(bokeh);
 const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth / 2, innerHeight / 2), 0.42, 0.65, 0.9);
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
@@ -57,6 +74,7 @@ const destruction = new Destruction(G, room.colliders);
 G.props = new Props(G, destruction);
 const vices = new Vices(G, room);
 G.ban = ban; G.destruction = destruction; G.vices = vices;
+G.fx = { gtao, bokeh, bloom, composer };
 
 // ---------- game actions ----------
 G.addRage = (a) => {
@@ -248,11 +266,22 @@ addEventListener('resize', () => {
 // ---------- frame loop ----------
 let last = performance.now(), frameN = 0, rr = 0;
 const _v = new THREE.Vector3();
-G.fps = 60;
+G.fps = 60; G.quality = 0;
+let slow = 0;
 function frame(now) {
   requestAnimationFrame(frame);
-  const dt = Math.min(0.05, (now - last) / 1000); last = now;
-  if (dt > 0) G.fps += (1 / dt - G.fps) * 0.05;
+  const raw = (now - last) / 1000, dt = Math.min(0.05, raw); last = now;
+  if (raw > 0 && raw < 0.1) { // ignore throttled / background frames
+    G.fps += (1 / raw - G.fps) * 0.05;
+    // adaptive quality: hold 60 fps by shedding resolution first, then AO, then depth of field
+    slow = G.fps < 50 ? slow + 1 : Math.max(0, slow - 2);
+    if (slow > 120 && G.quality < 3) {
+      slow = 0; G.quality++;
+      if (G.quality === 1) { renderer.setPixelRatio(1); composer.setPixelRatio(1); }
+      else if (G.quality === 2) gtao.enabled = false;
+      else bokeh.enabled = false;
+    }
+  }
   tick(dt);
 }
 // one full frame (logic + visuals). Exposed so tests can advance time without waiting for rAF.
@@ -297,6 +326,7 @@ function tick(dt) {
     if (!G.player.seated && G.player.chairOk && G.player.nearSeat() && G.ui.hintT <= 0) G.ui.hint('SPACE to sit back down', 0.5);
     if (!G.player.locked && G.ui.hintT <= 0 && G.time > 8) G.ui.hint('Click the game to capture the mouse (Esc releases it)', 0.5);
   }
+  bokeh.uniforms.focus.value = 1.5 + G.player.lean * 0.5;
   composer.render();
 }
 G.tick = tick; G.start = start; G.click = click; G.grabThrow = grabThrow; G.squeeze = squeeze;
