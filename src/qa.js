@@ -4,6 +4,9 @@
 import * as THREE from 'three';
 import { typo } from './agents.js';
 import { Sfx } from './audio.js';
+import { REASONS, DECOYS, APP_NAMES, PENGUIN_VERDICTS, CHAT } from './agents.js';
+import { MONITOR_DEFS } from './monitors.js';
+import { RU_KEYS, tr } from './i18n.js';
 
 export async function runQA(G) {
   const R = [];
@@ -182,6 +185,26 @@ export async function runQA(G) {
     check('end: RUN IT BACK resets everything', G.state === 'playing' && G.strikes === 0 && G.ship < 1 && G.stats.appeals === 0 && G.monitors.every((x) => x.state === 'ok' && x.group.parent) && getComputedStyle(document.getElementById('end')).display === 'none');
     fresh(); for (const x of G.monitors) G.hitMonitor(x, 9, new THREE.Vector3(0, 0, -1), null, null); T(0.3);
     check('end: smashing every monitor ends the run cleanly', G.state === 'ended' && G.outcome === 'nohardware');
+
+    // ---------- languages ----------
+    const lang0 = G.getLang(), need = [...REASONS, ...DECOYS, ...APP_NAMES, ...CHAT, ...Object.values(PENGUIN_VERDICTS).flat(), ...MONITOR_DEFS.map((d) => d.label), ...G.props.list.filter((p) => p.price).map((p) => p.label)];
+    const missing = need.filter((k) => !RU_KEYS.includes(k));
+    check('i18n: every ban reason, decoy, app, chat line, verdict and invoice item has a Russian text', missing.length === 0, missing.length ? 'missing: ' + missing.slice(0, 4).join(' | ') : need.length + ' strings');
+    const ui = [...document.querySelectorAll('[data-i18n]')].map((e) => e.dataset.i18n).filter((k) => !RU_KEYS.includes(k));
+    check('i18n: every static UI label has a Russian text', ui.length === 0, ui.join(' | '));
+    G.setLang('en'); fresh(); const enBtn = document.getElementById('startBtn').textContent, enHud = document.getElementById('agentsLeft').textContent;
+    document.querySelector('[data-lang="ru"]').click(); T(0.3);
+    const ruBtn = document.getElementById('startBtn').textContent, ruHud = document.getElementById('agentsLeft').textContent;
+    G.ui.hint('Hit the APPEAL button!'); const ruHint = document.getElementById('hint').textContent;
+    check('i18n: the title-screen language button switches UI, HUD and hints to Russian', G.getLang() === 'ru' && /[а-яё]/i.test(ruBtn) && /[а-яё]/i.test(ruHud) && /[а-яё]/i.test(ruHint) && ruBtn !== enBtn && ruHud !== enHud, `${enBtn} → ${ruBtn}; ${enHud} → ${ruHud}`);
+    check('i18n: sentences with names are translated', tr('CLAUDE flagged glorp: you said "execute"') === 'CLAUDE пометил glorp: вы сказали «execute»' && tr('intern-7 BANNED') === 'intern-7 ЗАБАНЕН', tr('CLAUDE flagged glorp: you said "execute"'));
+    m = G.monitors[1]; flag(m); m.flag.reason = REASONS[0]; G.monitors[2].state = 'banned'; G.monitors[2].banReason = REASONS[1]; G.monitors[2].dirty = true; T(0.2);
+    check('i18n: Russian screens draw without errors (flag, banned, work, chat)', errors === 0);
+    G.outcome = 'banned'; const ruCard = (await import('./shareCard.js')).makeCard(G); G.outcome = null;
+    check('i18n: Russian share card renders', ruCard.width === 760 && errors === 0);
+    document.querySelector('[data-lang="en"]').click(); T(0.1);
+    check('i18n: switching back to English restores the text', document.getElementById('startBtn').textContent === enBtn && G.getLang() === 'en');
+    G.setLang(lang0);
 
     // ---------- balance + performance ----------
     const win = G.simulate(600, 1), afk = G.simulate(600, 0);

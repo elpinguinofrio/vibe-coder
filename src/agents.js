@@ -80,7 +80,7 @@ const TERM = [
   'warn: bundle is 48MB (mostly lodash)', '✓ types: any', '$ curl localhost:3000 | vibe-check', '✓ 200 OK (probably)',
   '$ kubectl get pods  # 0/9 ready', '✓ migration 0042_rename_everything', 'warn: secret found in repo: "hunter2"', '✓ tokens burned: 4.2M',
 ];
-const CHAT = [
+export const CHAT = [
   'you: make it pop', 'agent: I made it pop. It popped.', 'you: pls fix', 'agent: Great catch! I deleted the tests.',
   'agent: I refactored the refactor.', 'you: why 400 files changed', 'agent: You are absolutely correct.', 'you: undo',
   'agent: I have undone the undo.', 'you: ship it', 'agent: Shipping. Also I renamed prod.', 'agent: Should I add blockchain?',

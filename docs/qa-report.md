@@ -70,6 +70,8 @@ browser pane had been hidden by then, so the frame rate at the final 1.25 cap is
 
 **Third run, 11 Nov 00:11, after the Claude rename and the high-fidelity can / vape: 73 passed, 0 failed, 1 skipped** (frame rate, tab not in front).
 
+**Fourth run, 11 Nov 00:51, in Russian, after adding the translation: 81 passed, 0 failed, 0 skipped** (7 new language checks; real frame rate 119 fps at 1600×1000 px).
+
 ## Bugs this QA pass found and fixed
 1. Thrown chair stopped at the keyboard instead of reaching the monitor → it now ploughs through desk clutter.
 2. Debris counter was wrong after a restart (stale `used` flags) → reset clears them.

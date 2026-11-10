@@ -71,3 +71,7 @@ html, body { margin: 0; height: 100%; background: #07060d; overflow: hidden; col
 @media (max-width: 900px) { #strikes { font-size: 0; } #strikes .dots { font-size: 22px; } #shipWrap { width: 56vw; } #hint { bottom: 96px; } }
 #beerfx { position: absolute; inset: 0; opacity: 0; background: radial-gradient(ellipse at 50% 70%, rgba(255,190,60,.05) 20%, rgba(255,170,30,.5) 100%); }
 #title .fine { margin-top: 18px; font-size: 11px; color: #8d91b5; }
+#title .keys i { font-style: normal; }
+.langs { margin-top: 14px; display: flex; gap: 8px; }
+.langs button { font: inherit; font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 8px; cursor: pointer; background: rgba(255,255,255,.1); color: #cfd3ff; border: 1px solid rgba(255,255,255,.25); }
+.langs button.on { background: #ffe14a; color: #2a2100; border-color: #ffe14a; }

@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { VoxelBatch, clamp } from './voxel.js';
 import { nextLine, typo } from './agents.js';
+import { t, tr } from './i18n.js';
 
 const PPM = 820; // canvas pixels per metre of screen
 const FONT = 'Menlo, Consolas, "Courier New", monospace';
@@ -150,12 +151,12 @@ export class Monitor {
     c.font = `bold 14px ${FONT}`;
     c.fillStyle = '#fff'; c.fillText('● ' + this.agent.name, 8, 6);
     const pct = clamp(Math.round(G.ship + this.offset * (G.ship > 4 && G.ship < 96 ? 1 : 0)), 0, 100);
-    c.textAlign = 'right'; c.fillStyle = '#7dffb0'; c.fillText(`SHIP ${pct}%`, W - 8, 6); c.textAlign = 'left';
+    c.textAlign = 'right'; c.fillStyle = '#7dffb0'; c.fillText(`${t('SHIP')} ${pct}%`, W - 8, 6); c.textAlign = 'left';
     c.fillStyle = '#000'; c.fillRect(0, 26, W, 8);
     c.fillStyle = '#35e08a'; c.fillRect(0, 26, (W * pct) / 100, 8);
 
     this.typed += 2 + Math.random() * 5;
-    if (this.typed >= this.cur.t.length + 5) {
+    if (this.typed >= t(this.cur.t).length + 5) {
       this.lines.push(this.cur); this.cur = nextLine(this.agent.kind); this.typed = 0;
       while (this.lines.length > this.maxLines - 1) this.lines.shift();
     }
@@ -163,22 +164,22 @@ export class Monitor {
     c.save(); c.beginPath(); c.rect(0, 36, textW - 6, H); c.clip();
     c.font = `15px ${FONT}`;
     let y = 42;
-    for (const L of this.lines) { c.fillStyle = L.c; c.fillText(typo(L.t, G.drunk), 8, y); y += 19; }
-    c.fillStyle = this.cur.c; c.fillText(this.cur.t.slice(0, this.typed | 0) + '█', 8, y);
+    for (const L of this.lines) { c.fillStyle = L.c; c.fillText(typo(t(L.t), G.drunk), 8, y); y += 19; }
+    c.fillStyle = this.cur.c; c.fillText(t(this.cur.t).slice(0, this.typed | 0) + '█', 8, y);
     c.restore();
     if (wide) {
       // ultrawide gets a "dashboard" pane
       const x0 = textW + 10, bw = (W - x0 - 14) / 14;
       c.fillStyle = 'rgba(255,255,255,.06)'; c.fillRect(textW, 36, W - textW, H);
-      c.font = `bold 13px ${FONT}`; c.fillStyle = '#ffcb6b'; c.fillText('TOKENS BURNED / MIN', x0, 44);
+      c.font = `bold 13px ${FONT}`; c.fillStyle = '#ffcb6b'; c.fillText(t('TOKENS BURNED / MIN'), x0, 44);
       for (let k = 0; k < 14; k++) {
         const v = 0.25 + 0.75 * Math.abs(Math.sin(G.real * 1.3 + k * 0.7 + Math.sin(k * 3.1)));
         c.fillStyle = k % 3 ? '#8f7bff' : '#ff4fd8';
         c.fillRect(x0 + k * bw, H - 60 - v * (H - 150), bw - 4, v * (H - 150));
       }
       c.fillStyle = '#9fe3ff'; c.font = `13px ${FONT}`;
-      c.fillText('vibes: immaculate   burn: $' + (41 + G.real * 0.9).toFixed(2), x0, H - 46);
-      c.fillText('building: ' + (G.appName || '???'), x0, H - 26);
+      c.fillText(t('vibes: immaculate   burn: $') + (41 + G.real * 0.9).toFixed(2), x0, H - 46);
+      c.fillText(t('building: ') + t(G.appName || '???'), x0, H - 26);
     }
   }
 
@@ -188,9 +189,9 @@ export class Monitor {
     c.fillStyle = '#200'; c.fillRect(0, 0, W, 12);
     c.fillStyle = '#ffe14a'; c.fillRect(0, 0, W * clamp(f.t / f.max, 0, 1), 12);
     c.textAlign = 'center';
-    c.fillStyle = '#ffe14a'; c.font = `bold 17px ${FONT}`; c.fillText('⚠ CLAUDE SAFETY FLAG ⚠', W / 2, 18);
+    c.fillStyle = '#ffe14a'; c.font = `bold 17px ${FONT}`; c.fillText(t('⚠ CLAUDE SAFETY FLAG ⚠'), W / 2, 18);
     c.fillStyle = '#fff'; c.font = `14px ${FONT}`;
-    wrap(c, '"' + f.reason + '"', W / 2, 42, W - 16, 17, H > 400 ? 5 : 3);
+    wrap(c, '"' + tr(f.reason) + '"', W / 2, 42, W - 16, 17, H > 400 ? 5 : 3);
     const big = Math.min(H * 0.3, W * 0.34, 120);
     c.font = `bold ${big}px ${FONT}`; c.textBaseline = 'middle';
     c.fillStyle = '#fff'; c.fillText(Math.max(0, f.t).toFixed(1), W / 2, H * 0.57);
@@ -203,9 +204,9 @@ export class Monitor {
       c.fillText(label, x + bw / 2, by + bh / 2);
     };
     if (f.decoy) {
-      btn(8, W / 2 - 12, f.decoy.side === 0 ? 'APPEAL' : f.decoy.label);
-      btn(W / 2 + 4, W / 2 - 12, f.decoy.side === 1 ? 'APPEAL' : f.decoy.label);
-    } else btn(8, W - 16, W > 330 ? 'CLICK TO APPEAL' : 'APPEAL');
+      btn(8, W / 2 - 12, t(f.decoy.side === 0 ? 'APPEAL' : f.decoy.label));
+      btn(W / 2 + 4, W / 2 - 12, t(f.decoy.side === 1 ? 'APPEAL' : f.decoy.label));
+    } else btn(8, W - 16, t(W > 330 ? 'CLICK TO APPEAL' : 'APPEAL'));
     c.textBaseline = 'top'; c.textAlign = 'left';
   }
 
@@ -213,16 +214,16 @@ export class Monitor {
     c.fillStyle = '#08080b'; c.fillRect(0, 0, W, H);
     for (let k = 0; k < 160; k++) { c.fillStyle = `rgba(255,255,255,${Math.random() * 0.07})`; c.fillRect(Math.random() * W, Math.random() * H, 2, 2); }
     c.textAlign = 'center'; c.fillStyle = '#6b6f85'; c.font = `13px ${FONT}`;
-    c.fillText(this.agent.name + ' — banned by Claude', W / 2, 12);
-    wrap(c, 'reason: ' + this.banReason, W / 2, H - 58, W - 20, 16, 3);
+    c.fillText(this.agent.name + t(' — banned by Claude'), W / 2, 12);
+    wrap(c, t('reason: ') + tr(this.banReason), W / 2, H - 58, W - 20, 16, 3);
     c.save(); c.translate(W / 2, H / 2); c.rotate(-0.2);
     const fs = Math.min(W / 4.6, H / 2.6);
     c.font = `900 ${fs}px "Arial Black", Impact, sans-serif`; c.textBaseline = 'middle';
-    const tw = c.measureText('BANNED').width;
+    const tw = c.measureText(t('BANNED')).width;
     c.strokeStyle = '#ff1a3c'; c.lineWidth = Math.max(4, fs * 0.09);
     c.strokeRect(-tw / 2 - fs * 0.22, -fs * 0.68, tw + fs * 0.44, fs * 1.36);
     c.lineWidth = 2; c.strokeRect(-tw / 2 - fs * 0.34, -fs * 0.8, tw + fs * 0.68, fs * 1.6);
-    c.fillStyle = '#ff1a3c'; c.fillText('BANNED', 0, fs * 0.04);
+    c.fillStyle = '#ff1a3c'; c.fillText(t('BANNED'), 0, fs * 0.04);
     c.restore(); c.textBaseline = 'top'; c.textAlign = 'left';
   }
 
@@ -235,7 +236,7 @@ export class Monitor {
     }
     c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#fff';
     const fs = Math.min(W / 5.2, H / 3);
-    c.font = `900 ${fs}px "Arial Black", Impact, sans-serif`; c.fillText('SHIPPED', W / 2, H / 2);
+    c.font = `900 ${fs}px "Arial Black", Impact, sans-serif`; c.fillText(t('SHIPPED'), W / 2, H / 2);
     c.textBaseline = 'top'; c.textAlign = 'left';
   }
 }

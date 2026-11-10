@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { VoxelBatch, rand } from './voxel.js';
 import { ROOM } from './room.js';
 import { canModel } from './hifi.js';
+import { t } from './i18n.js';
 
 const DY = ROOM.deskY;
 
@@ -15,7 +16,7 @@ function bubbleSprite() {
     const x = c.getContext('2d'); x.clearRect(0, 0, 256, 96);
     x.fillStyle = '#fff'; x.beginPath(); x.roundRect ? x.roundRect(4, 4, 248, 66, 22) : x.rect(4, 4, 248, 66); x.fill();
     x.beginPath(); x.moveTo(110, 68); x.lineTo(128, 94); x.lineTo(146, 68); x.fill();
-    x.fillStyle = '#1a1c2c'; x.font = 'bold 30px system-ui, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(text, 128, 38);
+    x.fillStyle = '#1a1c2c'; x.font = 'bold 30px system-ui, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(t(text), 128, 38);
     tex.needsUpdate = true; s.visible = true;
   };
   return s;

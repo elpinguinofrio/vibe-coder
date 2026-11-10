@@ -19,6 +19,7 @@ import { UI } from './ui.js';
 import { Sfx } from './audio.js';
 import { makeCard, savePNG } from './shareCard.js';
 import { pick } from './voxel.js';
+import { setLang, getLang, onLang } from './i18n.js';
 
 const app = document.getElementById('app');
 const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
@@ -338,6 +339,8 @@ function tick(dt) {
   bokeh.uniforms.focus.value = 1.5 + G.player.lean * 0.5;
   composer.render();
 }
+onLang(() => { for (const m of G.monitors) m.dirty = true; }); // redraw every screen in the new language
+G.setLang = setLang; G.getLang = getLang;
 G.tick = tick; G.toTitle = toTitle; G.start = start; G.click = click; G.grabThrow = grabThrow; G.squeeze = squeeze;
 if (location.search.includes('qa')) import('./qa.js').then((m) => { G.qa = () => m.runQA(G); });
 G.ui.showTitle(true);

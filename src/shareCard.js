@@ -1,6 +1,7 @@
 // End-of-run share card: a receipt you can save as PNG and post.
 import { pick } from './voxel.js';
 import { PENGUIN_VERDICTS } from './agents.js';
+import { t, tr } from './i18n.js';
 
 const W = 760, H = 1240, F = 'Menlo, Consolas, "Courier New", monospace';
 const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
@@ -52,23 +53,25 @@ export function makeCard(G) {
   const ink = '#1c1a26'; let y = 78;
   x.textAlign = 'center'; x.fillStyle = ink;
   x.font = '900 46px "Arial Black", Impact, sans-serif'; x.fillText('VIBE CODER SIMULATOR', W / 2, y); y += 30;
-  x.font = `16px ${F}`; x.fillText('~ whack-a-ban receipt · 2:07 AM ~', W / 2, y); y += 22;
+  x.font = `16px ${F}`; x.fillText(t('~ whack-a-ban receipt · 2:07 AM ~'), W / 2, y); y += 22;
   const rule = (label) => {
     x.font = `bold 16px ${F}`; x.textAlign = 'center'; x.fillStyle = ink;
     const dash = '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -';
-    x.fillText(label ? `-------- ${label} --------` : dash, W / 2, y + 8); y += 34;
+    x.fillText(label ? `-------- ${t(label)} --------` : dash, W / 2, y + 8); y += 34;
   };
   rule();
   // outcome stamp
   const out = { shipped: ['SHIPPED', '#0e9a55'], banned: ['BANNED BY CLAUDE', '#e01834'], nohardware: ['NO MONITORS LEFT', '#e07a18'] }[G.outcome] || ['???', ink];
+  out[0] = t(out[0]);
   x.save(); x.translate(W / 2, y + 44); x.rotate(-0.05);
   x.font = `900 ${out[0].length > 8 ? 52 : 86}px "Arial Black", Impact, sans-serif`; x.fillStyle = out[1]; x.strokeStyle = out[1];
   const tw = x.measureText(out[0]).width; x.lineWidth = 7; x.strokeRect(-tw / 2 - 22, -52, tw + 44, 104);
   x.textBaseline = 'middle'; x.fillText(out[0], 0, 4); x.textBaseline = 'alphabetic'; x.restore();
   y += 128;
-  x.fillStyle = ink; x.font = `bold 19px ${F}`; x.fillText(`app: ${G.appName}`, W / 2, y); y += 26;
+  x.fillStyle = ink; x.font = `bold 19px ${F}`; x.fillText(t('app: ') + t(G.appName), W / 2, y); y += 26;
   rule();
   const row = (k, v, bold) => {
+    k = t(k);
     x.font = `${bold ? 'bold ' : ''}20px ${F}`; x.fillStyle = ink;
     x.textAlign = 'left'; x.fillText(k, L + 44, y); x.textAlign = 'right'; x.fillText(String(v), R - 44, y);
     const kw = x.measureText(k).width, vw = x.measureText(String(v)).width;
@@ -83,22 +86,22 @@ export function makeCard(G) {
   y += 8; rule('DAMAGE INVOICE (USD)');
   const total = s.invoice.reduce((a, b) => a + b.price, 0);
   if (!s.invoice.length) row('nothing. are you ok?', usd(0));
-  s.invoice.slice(0, 5).forEach((it) => row(it.label.length > 34 ? it.label.slice(0, 33) + '…' : it.label, usd(it.price)));
-  if (s.invoice.length > 5) row(`+ ${s.invoice.length - 5} more regrets`, usd(s.invoice.slice(5).reduce((a, b) => a + b.price, 0)));
+  s.invoice.slice(0, 5).forEach((it) => { const lb = t(it.label); row(lb.length > 34 ? lb.slice(0, 33) + '…' : lb, usd(it.price)); });
+  if (s.invoice.length > 5) row(`+ ${s.invoice.length - 5} ${t('more regrets')}`, usd(s.invoice.slice(5).reduce((a, b) => a + b.price, 0)));
   row('TOTAL', usd(total), true);
   y += 8; rule('FUNNIEST BAN REASON');
   x.textAlign = 'center'; x.fillStyle = '#b3122b'; x.font = `italic bold 20px ${F}`;
-  for (const ln of wrapLines(x, `"${funniestReason(s)}"`, R - L - 90).slice(0, 3)) { x.fillText(ln, W / 2, y); y += 27; }
+  for (const ln of wrapLines(x, `"${tr(funniestReason(s))}"`, R - L - 90).slice(0, 3)) { x.fillText(ln, W / 2, y); y += 27; }
   y += 12; rule("THE PENGUIN'S VERDICT");
   const py = Math.min(y + 62, B - 190);
   penguin(x, L + 110, py, 1.0, s.offended > 0);
   x.textAlign = 'left'; x.fillStyle = ink; x.font = `bold 20px ${F}`;
-  let vy = py - 26; for (const ln of wrapLines(x, verdict(G), R - L - 260).slice(0, 4)) { x.fillText(ln, L + 200, vy); vy += 28; }
+  let vy = py - 26; for (const ln of wrapLines(x, tr(verdict(G)), R - L - 260).slice(0, 4)) { x.fillText(ln, L + 200, vy); vy += 28; }
   // barcode + footer
   let bx = L + 60; const by = B - 92;
   x.fillStyle = ink; while (bx < R - 60) { const bw = 1 + ((Math.random() * 4) | 0); x.fillRect(bx, by, bw, 40); bx += bw + 1 + ((Math.random() * 4) | 0); }
   x.textAlign = 'center'; x.font = `13px ${F}`;
-  x.fillText('CLAUDE SAFETY DEPT. (parody, not affiliated with Anthropic) · appeals: lol · #VibeCoderSimulator', W / 2, B - 30);
+  x.fillText(t('CLAUDE SAFETY DEPT. (parody, not affiliated with Anthropic) · appeals: lol · #VibeCoderSimulator'), W / 2, B - 30);
   return c;
 }
 

@@ -1,6 +1,6 @@
 # Vibe Coder Simulator — notes
 
-**Minutes left to the hard deadline (01:00 WITA, 11 Nov 2026): 47** (written 00:12 WITA, 11 Nov 2026)
+**Minutes left to the hard deadline (01:00 WITA, 11 Nov 2026): 9** (written 00:50 WITA, 11 Nov 2026)
 
 ## How to run
 ```bash
@@ -50,6 +50,16 @@ grabs and throws finished with no console errors. Frame cost measured 4.3 ms wit
 - QA after these changes: 73 passed, 0 failed, 1 skipped (frame rate — the pane throttles drawing to ~1 fps when it is not in front,
   so real fps could not be read; GPU-flushed frame cost measured 1.5 ms at 1026×1106 px on the title screen).
 
+### Russian translation (11 Nov, 00:45–00:50 WITA, user request made after the 00:30 freeze)
+- Language buttons **English / Русский** on the title screen; the choice is remembered (localStorage), default follows the browser language.
+- Translated: title, HUD, hints, toasts, Claude's flag screens and all 33 ban reasons, decoy buttons, agent chat lines, app names,
+  invoice items, end screen, the whole receipt and the penguin's verdicts. Code and terminal lines on the monitors stay in English (it is code).
+  The game title "VIBE CODER SIMULATOR" stays in English.
+- Dictionary: `src/i18n.js` (English text is the key). To add a language, add a dictionary there and an entry in `LANGS`.
+- QA re-run **in Russian**: 81 passed, 0 failed, 0 skipped — includes 7 new language checks and a real frame rate of
+  119 fps at 1600×1000 px with the new high-fidelity models and a vape cloud on screen.
+- The Russian was written by me and not reviewed by a native speaker.
+
 ## Untested / not done
 - **Safari: untested** (I may not open browsers on this machine). Only the Chromium-based in-app pane was used.
 - **Sound was never heard by me.** It is measured instead: every effect renders a non-silent signal and stops, and nothing plays when no effect is triggered. Whether it *sounds good* is for your ears.
@@ -79,6 +89,7 @@ grabs and throws finished with no console errors. Frame cost measured 4.3 ms wit
 - 23:41 decoy hint, narrow-window HUD · 23:42 final check: real Start click → bot run → SHIPPED at 3:02 → share card shown, 0 console messages
 - 23:43 user: "all sounds disappeared… no beer animation… do proper QA" → root causes found (my `?mute` test URL in the user's tab; beer animation was a 1 s small box), fixed, QA harness written, 5 more bugs found and fixed (docs/qa-report.md) · 23:54 committed
 - 00:05 (11 Nov) user: can + vape high fidelity, overall fidelity up, and "Claude bans you" → done by 00:12, QA re-run 73/0/1
+- 00:45 user: Russian translation with a chooser → done 00:50, QA 81/81 in Russian
 - Final review: self-review (no subagents, per spec.md "single agent"); weaker than a fresh reviewer.
 
 ## Next 3 ideas
