@@ -3,6 +3,7 @@ export class Sfx {
   constructor() { this.ctx = null; this.muted = false; }
 
   init() {
+    if (location.search.includes('mute')) return; // ?mute = silent (used by scripted tests)
     if (this.ctx) { if (this.ctx.state === 'suspended') this.ctx.resume(); return; }
     try {
       const AC = window.AudioContext || window.webkitAudioContext;
@@ -13,6 +14,8 @@ export class Sfx {
       const d = this.nbuf.getChannelData(0);
       for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
       this.ambience();
+      // never keep making noise from a hidden tab
+      document.addEventListener('visibilitychange', () => { if (!this.ctx) return; if (document.hidden) this.ctx.suspend(); else this.ctx.resume(); });
     } catch (e) { this.ctx = null; }
   }
 
@@ -39,20 +42,11 @@ export class Sfx {
 
   ambience() {
     const c = this.ctx;
-    // rain on the window
+    // soft rain on the window (the fridge hum and synth pad were removed: the user found the drone annoying)
     const s = c.createBufferSource(); s.buffer = this.nbuf; s.loop = true;
     const f = c.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1500; f.Q.value = 0.35;
-    const g = c.createGain(); g.gain.value = 0.075;
+    const g = c.createGain(); g.gain.value = 0.045;
     s.connect(f).connect(g).connect(this.master); s.start();
-    // fridge hum
-    for (const [hz, v] of [[58, 0.05], [116, 0.018], [174, 0.006]]) {
-      const o = c.createOscillator(); o.frequency.value = hz; const og = c.createGain(); og.gain.value = v;
-      o.connect(og).connect(this.master); o.start();
-    }
-    // sleepy 2 AM pad
-    const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 520; const pg = c.createGain(); pg.gain.value = 0.028;
-    lp.connect(pg).connect(this.master);
-    for (const hz of [110, 164.8, 220.6, 277.2, 329.6]) { const o = c.createOscillator(); o.type = 'triangle'; o.frequency.value = hz; o.detune.value = Math.random() * 14 - 7; o.connect(lp); o.start(); }
   }
 
   clack() { this.noise(0.03, { type: 'highpass', freq: 2200 + Math.random() * 1800, gain: 0.05 }); }
