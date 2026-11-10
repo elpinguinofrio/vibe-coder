@@ -101,7 +101,7 @@ export class Destruction {
       pos.set(rand(-mon.w / 2, mon.w / 2), rand(-mon.h / 2, mon.h / 2), 0.02).applyMatrix4(mon.group.matrixWorld);
       vel.copy(dir).multiplyScalar(-rand(0.5, 3)).add(_v.set(rand(-2, 2), rand(0.5, 4), rand(-2, 2)));
       const s = rand(0.015, 0.045);
-      this.spawn(pos, s, s * rand(0.5, 1.4), 0.006, _c.setRGB(0.75, 1.1, 1.35), q, vel);
+      this.spawn(pos, s, s * rand(0.5, 1.4), 0.006, _c.setRGB(2.2, 3.0, 3.6), q, vel);
     }
   }
 

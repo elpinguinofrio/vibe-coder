@@ -195,6 +195,16 @@ export function buildRoom(scene) {
   lamp.castShadow = true; lamp.shadow.mapSize.set(1024, 1024); lamp.shadow.radius = 5; lamp.shadow.bias = -0.0015; lamp.shadow.camera.near = 0.1; lamp.shadow.camera.far = 6;
   scene.add(lamp, lamp.target);
 
+  // the Hall Monitor: PARABLE's safety bot, hanging from the ceiling, staring at whoever it flagged
+  const hb = new VoxelBatch();
+  hb.box(0, 0, 0, 0.26, 0.17, 0.3, 0xe9ecf4); hb.box(0, 0, 0.152, 0.2, 0.11, 0.01, 0x0d0e16, { j: 0 });
+  hb.box(-0.14, 0.02, 0, 0.03, 0.06, 0.1, 0xffc61a); hb.box(0.14, 0.02, 0, 0.03, 0.06, 0.1, 0xffc61a);
+  hb.box(0, 0.1, -0.05, 0.05, 0.05, 0.05, 0x8a8fa8); hb.box(0, -0.1, 0.1, 0.2, 0.03, 0.02, 0xffc61a);
+  const bot = hb.build(); bot.position.set(0, 2.06, -1.93); scene.add(bot);
+  const eye = new THREE.Mesh(UNIT, new THREE.MeshBasicMaterial({ color: 0x33ff88, toneMapped: false })); eye.scale.set(0.07, 0.07, 0.02); eye.position.set(0, 0, 0.16); bot.add(eye);
+  const arm = new VoxelBatch(); arm.box(0, 2.42, -1.98, 0.04, 0.56, 0.04, 0x8a8fa8); arm.box(0, 2.68, -1.98, 0.2, 0.04, 0.2, 0x555a70); scene.add(arm.build());
+  const botQ = new THREE.Quaternion(), botM = new THREE.Matrix4(), botT = new THREE.Vector3(), UP = new THREE.Vector3(0, 1, 0);
+
   const cA = new THREE.Color(), cB = new THREE.Color(), cool = new THREE.Color(0x9dbcff), hot = new THREE.Color(0xff3048);
   const colliders = [
     { min: [-1.75, 0.69, -2.1], max: [1.75, 0.75, -0.95] },
@@ -205,7 +215,11 @@ export function buildRoom(scene) {
     colliders, rgbA, rgbB,
     rgbColor(phase, out) { return out.setHSL((phase % 1 + 1) % 1, 1, 0.55); },
     // t = seconds, alert = 0..1 (flag pressure), calm = 0..1
-    update(t, alert, calm) {
+    update(t, alert, calm, target) {
+      if (target) botT.copy(target); else botT.set(Math.sin(t * 0.5) * 1.4, 1.0, -0.3);
+      botM.lookAt(botT, bot.position, UP); botQ.setFromRotationMatrix(botM); bot.quaternion.slerp(botQ, 0.12);
+      if (target) eye.material.color.setRGB(3.2, 0.1 + 0.3 * Math.sin(t * 20) ** 2, 0.15); else eye.material.color.setRGB(0.2, 1.6, 0.6);
+      eye.scale.x = eye.scale.y = target ? 0.085 : 0.06;
       rainTex.offset.y = t * 0.11; rainTex2.offset.y = t * 0.2; rainTex2.offset.x = Math.sin(t * 0.2) * 0.02;
       const h = t * 0.045;
       for (let i = 0; i < segs.length; i++) { col.setHSL((h + i * 0.012) % 1, 1, 0.55).multiplyScalar(1.7); rgb.setColorAt(i, col); }

@@ -72,7 +72,9 @@ export class Player {
     this.camera.quaternion.setFromEuler(e);
     this.camera.position.copy(this.pos);
     this.camera.position.x += Math.sin(t * 0.5) * sway * 1.2;
-    const fov = 68 + this.lean * 12;
+    // keep ~94° of horizontal view on narrow windows so the side monitors stay reachable
+    const base = Math.min(100, Math.max(68, (2 * Math.atan(Math.tan(0.82) / this.camera.aspect) * 180) / Math.PI));
+    const fov = base + this.lean * 12;
     if (Math.abs(this.camera.fov - fov) > 0.05) { this.camera.fov = fov; this.camera.updateProjectionMatrix(); }
     this.punchT = Math.max(0, this.punchT - dt);
   }

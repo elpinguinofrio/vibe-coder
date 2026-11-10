@@ -61,7 +61,9 @@ html, body { margin: 0; height: 100%; background: #07060d; overflow: hidden; col
 
 /* end */
 #end { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; gap: 34px; background: rgba(5,4,10,.82); flex-wrap: wrap; overflow: auto; padding: 14px; }
-#end canvas { height: min(88vh, 900px); width: auto; border-radius: 6px; box-shadow: 0 20px 80px rgba(0,0,0,.8), 0 0 60px rgba(150,90,255,.3); transform: rotate(-1.5deg); }
+#end canvas { max-height: min(84vh, 900px); max-width: 92vw; height: auto; width: auto; border-radius: 6px; box-shadow: 0 20px 80px rgba(0,0,0,.8), 0 0 60px rgba(150,90,255,.3); transform: rotate(-1.5deg); }
 #endSide { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; max-width: 340px; }
 #endSide h2 { font: 900 44px "Arial Black", sans-serif; margin: 0; line-height: 1; }
 #endSide p { margin: 0; color: #cfd3ff; font-size: 14px; line-height: 1.5; }
+
+@media (max-aspect-ratio: 1/1) { #end canvas { max-height: 66vh; } #endSide { align-items: center; text-align: center; } }

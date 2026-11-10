@@ -1,6 +1,6 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "vibe-coder", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "8137", "--bind", "127.0.0.1"], "port": 8137 }
+    { "name": "vibe-coder", "runtimeExecutable": "python3", "runtimeArgs": ["serve.py", "8137"], "port": 8137 }
   ]
 }

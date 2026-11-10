@@ -83,7 +83,7 @@ export class Monitor {
   }
 
   reset() {
-    this.state = 'ok'; this.hp = 3; this.flag = null; this.cracks = []; this.banReason = '';
+    this.state = 'ok'; this.hp = this.w > 1 ? 4 : 3; this.flag = null; this.cracks = []; this.banReason = '';
     this.lines = []; this.cur = nextLine(this.agent.kind); this.typed = 0; this.dirty = true;
     this.offset = (Math.random() - 0.5) * 7;
     for (let k = 0; k < this.maxLines - 2; k++) this.lines.push(nextLine(this.agent.kind));

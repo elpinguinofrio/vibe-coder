@@ -143,6 +143,10 @@ export class Props {
     this.fridge = fridge().build(); this.fridge.position.set(-2.12, 0, -0.5); this.fridge.userData.fridge = true; G.scene.add(this.fridge);
     destruction.colliders.push({ min: [-2.37, 0, -0.75], max: [-1.87, 0.84, -0.25] });
     const pad = new VoxelBatch(); pad.box(0.42, DY + 0.003, -1.15, 0.26, 0.006, 0.22, 0x2a1f4a); G.scene.add(pad.build());
+    // your fist (hoodie sleeve included) — jabs on every click
+    const f = new VoxelBatch();
+    f.box(0, 0, 0.2, 0.1, 0.1, 0.34, 0x6a4bd8); f.box(0, 0, 0.02, 0.105, 0.105, 0.03, 0x4d34b0); f.box(0, 0, -0.04, 0.09, 0.085, 0.09, 0xf0c39a); f.box(-0.05, -0.01, -0.03, 0.025, 0.04, 0.06, 0xe6b488);
+    this.fist = f.build(false); this.fist.scale.setScalar(0.62); G.camera.add(this.fist);
     this.reset();
   }
 
@@ -228,6 +232,9 @@ export class Props {
         else { c.group.rotation.y += c.spin * dt; c.spin *= Math.exp(-dt * 1.3); }
       }
     } else G.player.chairOk = false;
+    const fk = G.held ? 0 : Math.sin((Math.max(0, G.swingT) / 0.22) * Math.PI);
+    this.fist.visible = fk > 0.01;
+    this.fist.position.set(0.2 - fk * 0.12, -0.3 + fk * 0.14, -0.4 - fk * 0.32); this.fist.rotation.set(-0.3 + 0.2 * fk, 0.35 * (1 - fk), 0);
     if (G.held) {
       const s = Math.max(0, G.swingT) / 0.22, k = Math.sin(s * Math.PI);
       const big = G.held.kind === 'chair';

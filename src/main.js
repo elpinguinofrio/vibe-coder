@@ -262,11 +262,11 @@ function tick(dt) {
 
   const flagged = G.monitors.filter((m) => m.state === 'flagged');
   const alert = G.state === 'playing' ? Math.min(1, flagged.length / 2) : 0;
-  room.update(G.real, alert, G.calmT > 0 ? 1 : 0);
+  room.update(G.real, alert, G.calmT > 0 ? 1 : 0, G.state === 'playing' && flagged.length ? flagged.reduce((a, m) => (m.flag.t < a.flag.t ? m : a)).center : null);
   G.player.update(dt, G.real, G.drunk, G.state === 'playing');
   if (G.state === 'title') {
-    camera.position.set(Math.sin(G.real * 0.14) * 0.7, 1.5, 0.75);
-    camera.lookAt(Math.sin(G.real * 0.14) * 0.15, 1.12, -1.6);
+    camera.position.set(Math.sin(G.real * 0.14) * 0.8, 1.78, 0.95);
+    camera.lookAt(Math.sin(G.real * 0.14) * 0.15, 1.08, -1.6);
   }
 
   rr = (rr + 1) % G.monitors.length;

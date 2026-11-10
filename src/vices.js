@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { VoxelBatch, rand, clamp } from './voxel.js';
 
 const NP = 70;
+const WHITE = new THREE.Color(1, 1, 1);
 
 function puffTexture() {
   const c = document.createElement('canvas'); c.width = c.height = 128;
@@ -79,10 +80,10 @@ export class Vices {
       const size = 0.14 + 1.35 * (1 - Math.exp(-p.age * 0.55));
       p.s.scale.set(size, size, 1);
       p.s.material.rotation += dt * 0.05 * (p.seed % 2 ? 1 : -1);
-      p.s.material.opacity = Math.min(1, p.age * 2.5) * 0.62 * Math.pow(1 - p.age / p.life, 1.2);
+      p.s.material.opacity = Math.min(1, p.age * 2.5) * 0.5 * Math.pow(1 - p.age / p.life, 1.2);
       // lit by the RGB strips: tint follows whichever strip the puff is nearer to
       const k = clamp((p.s.position.x + 1.5) / 3, 0, 1);
-      p.s.material.color.copy(cA).lerp(cB, k).lerp(new THREE.Color(1, 1, 1), 0.5);
+      p.s.material.color.copy(cA).lerp(cB, k).lerp(WHITE, 0.3);
     }
     const target = clamp(active / 20, 0, 1);
     G.vapeCalm += (target - G.vapeCalm) * (1 - Math.exp(-dt * 2));
