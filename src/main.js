@@ -112,11 +112,11 @@ function click() {
   if (G.state !== 'playing') return;
   const hit = pickTarget();
   const dir = G.player.ray.ray.direction.clone();
-  if (hit && hit.mon && hit.mon.state === 'flagged') { if (ban.appeal(hit.mon, hit.h.uv) === 'appealed') hit.mon.grace = G.real + 0.45; return; }
+  if (hit && hit.mon && hit.mon.state === 'flagged') { if (ban.appeal(hit.mon, hit.h.uv) === 'appealed') { hit.mon.grace = G.real + 0.45; hit.mon.pop = 1; } return; }
   if (G.drunk > 0.2 && !(hit && (hit.penguin || hit.fridge))) { // liquid confidence: near misses count
     let best = null, bestA = 0.05 + G.drunk * 0.075;
     for (const m of G.monitors) if (m.state === 'flagged') { const a = dir.angleTo(m.center.clone().sub(camera.position)); if (a < bestA) { bestA = a; best = m; } }
-    if (best) { ban.appeal(best, null); best.grace = G.real + 0.45; return; }
+    if (best) { ban.appeal(best, null); best.grace = G.real + 0.45; best.pop = 1; return; }
   }
   G.swingT = 0.22;
   if (!hit) { G.sfx.whoosh(); return; }
@@ -274,6 +274,9 @@ function tick(dt) {
     if (m.state === 'smashed') continue;
     const anim = m.state === 'flagged' || m.state === 'shipped';
     if (m.dirty || (anim && frameN % 2 === 0) || (m.i === rr && m.state === 'ok')) m.draw(G);
+    m.pop = Math.max(0, (m.pop || 0) - dt * 6);
+    m.group.scale.setScalar(1 + 0.09 * m.pop * m.pop);
+    m.screen.position.x = m.state === 'flagged' ? Math.sin(G.real * 47) * 0.004 * (1 + (1 - m.flag.t / m.flag.max) * 2) : 0;
     m.mat.color.setScalar(m.state === 'flagged' ? 1.25 + 0.3 * Math.sin(G.real * 31) : m.state === 'banned' ? 0.75 : 1.15);
   }
 
@@ -291,6 +294,8 @@ function tick(dt) {
     const hit = G.player.aim().intersectObjects(flagged.map((m) => m.screen), false);
     G.ui.hot(hit.length > 0);
     if (Math.random() < dt * 7) G.sfx.clack();
+    if (!G.player.seated && G.player.chairOk && G.player.nearSeat() && G.ui.hintT <= 0) G.ui.hint('SPACE to sit back down', 0.5);
+    if (!G.player.locked && G.ui.hintT <= 0 && G.time > 8) G.ui.hint('Click the game to capture the mouse (Esc releases it)', 0.5);
   }
   composer.render();
 }

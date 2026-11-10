@@ -30,6 +30,9 @@ export class Vices {
     const b = new VoxelBatch();
     b.box(0, 0, 0, 0.022, 0.1, 0.022, 0xff4fd8); b.box(0, 0.06, 0, 0.014, 0.03, 0.014, 0x15161f); b.box(0, -0.04, 0.012, 0.01, 0.01, 0.003, 0x37e6ff, { glow: 3, j: 0 });
     this.pen = b.build(false); this.pen.position.set(0.12, -0.16, -0.32); this.pen.rotation.set(0.5, 0, -0.5); this.pen.visible = false; G.camera.add(this.pen);
+    // the can you are currently drinking
+    const cb = new VoxelBatch(); cb.box(0, 0, 0, 0.054, 0.1, 0.054, 0x2bff8a); cb.box(0, 0.053, 0, 0.046, 0.006, 0.046, 0xc9ced8); cb.box(0, 0.005, 0.0275, 0.03, 0.04, 0.002, 0xffffff, { j: 0 });
+    this.can = cb.build(false); this.can.visible = false; G.camera.add(this.can);
     this.np = 0; this.reset();
   }
 
@@ -50,6 +53,9 @@ export class Vices {
   update(dt, t, held) {
     const G = this.G;
     this.beerCd = Math.max(0, this.beerCd - dt);
+    const bk = this.beerCd > 0.4 ? Math.sin(((1.4 - this.beerCd) / 1.0) * Math.PI) : 0; // raise, tilt, lower
+    this.can.visible = bk > 0.01;
+    this.can.position.set(0.16 - bk * 0.1, -0.3 + bk * 0.16, -0.34); this.can.rotation.set(bk * 1.1, 0, -0.2);
     G.drunk = Math.max(0, G.drunk - dt / 24);
     const cam = G.camera;
     if (held && G.state === 'playing') {
