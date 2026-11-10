@@ -1,0 +1,4 @@
+.DS_Store
+vendor/jsm/*
+!vendor/jsm/postprocessing/
+!vendor/jsm/shaders/
