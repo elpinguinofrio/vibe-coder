@@ -6,7 +6,7 @@ export class UI {
   constructor(root) {
     root.innerHTML = `
     <div id="hud">
-      <div id="focus"></div><div id="calm"></div><div id="flash"></div>
+      <div id="focus"></div><div id="calm"></div><div id="danger"></div><div id="flash"></div>
       <div id="strikes">HALL MONITOR STRIKES<span class="dots" id="dots"></span></div>
       <div id="shipWrap"><div id="shipLabel">SHIP 0%</div><div id="shipBar"><div id="shipFill"></div></div></div>
       <div id="clock"><span id="time">0:00</span><small id="agentsLeft"></small></div>
@@ -57,6 +57,8 @@ export class UI {
     this.set('pengTxt', 'text', G.calmT > 0 ? 'calm...' : ready ? '[Q] squeeze!' : 'recovering');
     this.set('beerN', 'text', String(G.stats.beers)); this.set('vapeN', 'text', String(G.stats.vapes));
     this.set('invoice', 'text', 'damage $' + G.stats.invoice.reduce((a, b) => a + b.price, 0).toLocaleString('en-US'));
+    let urg = 0; for (const m of G.monitors) if (m.state === 'flagged') urg = Math.max(urg, 1 - m.flag.t / m.flag.max);
+    this.set('danger', 'opacity', (urg * urg * (0.7 + 0.3 * Math.sin(G.real * 14))).toFixed(2));
     this.set('focus', 'opacity', G.focusT > 0 ? '1' : '0');
     this.set('calm', 'opacity', G.calmT > 0 ? '1' : String(G.vapeCalm * 0.5));
     if (this.hintT > 0) { this.hintT -= dt; if (this.hintT <= 0) $('hint').style.opacity = 0; }

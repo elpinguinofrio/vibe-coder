@@ -81,12 +81,12 @@ export class Destruction {
   burst(boxes, mw, dir, power = 1) {
     const Q0 = new THREE.Quaternion(), S0 = new THREE.Vector3();
     mw.decompose(_p, Q0, S0);
-    let S = 0.06;
-    const count = (s) => boxes.reduce((a, b) => a + clamp(Math.round(b.w / s), 1, 8) * clamp(Math.round(b.h / s), 1, 8) * clamp(Math.round(b.d / s), 1, 8), 0);
-    const total = count(S); if (total > 130) S *= Math.cbrt(total / 130);
+    let S = 0.045;
+    const count = (s) => boxes.reduce((a, b) => a + clamp(Math.round(b.w / s), 1, 10) * clamp(Math.round(b.h / s), 1, 10) * clamp(Math.round(b.d / s), 1, 10), 0);
+    const total = count(S); if (total > 170) S *= Math.cbrt(total / 170);
     const pos = new THREE.Vector3(), vel = new THREE.Vector3();
     for (const b of boxes) {
-      const nx = clamp(Math.round(b.w / S), 1, 8), ny = clamp(Math.round(b.h / S), 1, 8), nz = clamp(Math.round(b.d / S), 1, 8);
+      const nx = clamp(Math.round(b.w / S), 1, 10), ny = clamp(Math.round(b.h / S), 1, 10), nz = clamp(Math.round(b.d / S), 1, 10);
       for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) for (let k = 0; k < nz; k++) {
         pos.set(b.x - b.w / 2 + (i + 0.5) * b.w / nx, b.y - b.h / 2 + (j + 0.5) * b.h / ny, b.z - b.d / 2 + (k + 0.5) * b.d / nz).applyMatrix4(mw);
         vel.copy(dir).multiplyScalar(rand(0.8, 3.6) * power).add(_v.set(rand(-1.6, 1.6), rand(0.6, 3.6), rand(-1.6, 1.6)));

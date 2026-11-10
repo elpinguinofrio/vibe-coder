@@ -185,6 +185,8 @@ export function buildRoom(scene) {
   scene.add(new THREE.AmbientLight(0x3a3470, 0.55));
   scene.add(new THREE.HemisphereLight(0x4a5cc0, 0x2a1020, 0.5));
   const screenL = new THREE.PointLight(0x9dbcff, 3.0, 7, 1.6); screenL.position.set(0, 1.3, -0.95); scene.add(screenL);
+  // the monitor glow casts soft shadows too, so desk clutter is grounded by the screens (stands in for AO)
+  screenL.castShadow = true; screenL.shadow.mapSize.set(512, 512); screenL.shadow.bias = -0.004; screenL.shadow.radius = 6; screenL.shadow.camera.near = 0.1; screenL.shadow.camera.far = 6;
   const screenR = new THREE.PointLight(0x9dbcff, 1.6, 4, 1.8); screenR.position.set(1.0, 1.2, -0.5); scene.add(screenR);
   const rgbA = new THREE.PointLight(0xff2bd6, 3.2, 5, 1.7); rgbA.position.set(-1.3, 1.05, -1.9); scene.add(rgbA);
   const rgbB = new THREE.PointLight(0x2bf0ff, 3.2, 5, 1.7); rgbB.position.set(1.3, 1.05, -1.9); scene.add(rgbB);
